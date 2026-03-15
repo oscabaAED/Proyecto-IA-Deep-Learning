@@ -3,691 +3,573 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dungeon Master IA</title>
+<title>NarrIA — Experiencias narrativas con IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d0b0e;
-    --bg2: #16121a;
-    --bg3: #1e1826;
-    --surface: #231d2e;
-    --surface2: #2d2540;
-    --border: rgba(180,150,255,0.12);
-    --border2: rgba(180,150,255,0.22);
-    --gold: #c9a84c;
-    --gold2: #e8c96a;
-    --purple: #8b6fd4;
-    --purple2: #a88eea;
-    --red: #c0392b;
-    --green: #2ecc71;
-    --text: #e8e0f0;
-    --text2: #a090b8;
-    --text3: #6a5888;
-    --radius: 10px;
-    --radius-lg: 16px;
-  }
+:root {
+  --bg:      #0c0b10;
+  --bg2:     #13111a;
+  --bg3:     #1a1726;
+  --surface: #201c2e;
+  --surface2:#2a2440;
+  --border:  rgba(200,170,255,0.1);
+  --border2: rgba(200,170,255,0.2);
+  --gold:    #c9a84c;
+  --gold2:   #e8c96a;
+  --purple:  #7c5cbf;
+  --purple2: #a07ee0;
+  --teal:    #2eb8a0;
+  --red:     #c0392b;
+  --green:   #27ae60;
+  --text:    #ede6f8;
+  --text2:   #9a8ab8;
+  --text3:   #5a4878;
+  --r:       10px;
+  --rlg:     16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Crimson Text',Georgia,serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:17px;
+  line-height:1.7;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 0%,rgba(100,50,200,0.15) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 35% at 85% 100%,rgba(46,184,160,0.08) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+.app{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:2rem 1.25rem 5rem}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── HEADER ── */
+.site-header{text-align:center;padding:2rem 0 1.75rem}
+.site-header::after{content:'';display:block;width:100px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:1rem auto 0}
+.site-logo{font-family:'Josefin Sans',sans-serif;font-size:clamp(32px,7vw,52px);font-weight:300;letter-spacing:8px;color:var(--text);line-height:1}
+.site-logo span{color:var(--gold2);font-weight:600}
+.site-tagline{font-style:italic;color:var(--text2);font-size:14px;margin-top:.4rem;letter-spacing:1.5px}
 
-  html { scroll-behavior: smooth; }
+/* ── SCREENS ── */
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-  body {
-    font-family: 'Crimson Text', Georgia, serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    line-height: 1.7;
-    font-size: 17px;
-  }
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
 
-  /* Atmospheric background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(80,40,140,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(140,60,20,0.12) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── FORM ── */
+label{display:block;font-size:13px;color:var(--text2);margin-bottom:5px;letter-spacing:.3px}
+input[type=text],textarea,select{
+  width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+  padding:10px 14px;color:var(--text);font-family:'Crimson Text',serif;font-size:16px;
+  margin-bottom:14px;outline:none;transition:border-color .2s;
+}
+input[type=text]:focus,textarea:focus,select:focus{border-color:var(--purple2);box-shadow:0 0 0 3px rgba(160,126,224,.12)}
+select option{background:var(--bg2)}
+textarea{resize:vertical;min-height:75px}
+.field{margin-bottom:1rem}
 
-  .app {
-    position: relative;
-    z-index: 1;
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 2rem 1.25rem 4rem;
-  }
+/* ── ACTIVITY GRID ── */
+.activity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:1rem}
+.activity-card{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rlg);
+  padding:1.1rem 1rem;cursor:pointer;transition:all .2s;text-align:left;
+  display:flex;flex-direction:column;gap:6px;
+}
+.activity-card:hover{border-color:var(--purple2);background:var(--surface2)}
+.activity-card.selected{border-color:var(--purple2);background:var(--surface2);box-shadow:0 0 0 2px rgba(160,126,224,.25)}
+.activity-icon{font-size:26px;line-height:1}
+.activity-name{font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.5px;color:var(--text)}
+.activity-desc{font-size:12px;color:var(--text2);line-height:1.45}
 
-  /* ── HEADER ── */
-  .site-header {
-    text-align: center;
-    padding: 2.5rem 0 2rem;
-    position: relative;
-  }
+/* ── PILLS ── */
+.pill-group{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.pill{padding:6px 16px;border-radius:999px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .15s;user-select:none}
+.pill:hover{border-color:var(--purple2);color:var(--text)}
+.pill.selected{background:var(--purple);border-color:var(--purple2);color:#fff}
+.pill.selected-teal{background:var(--teal);border-color:#3dd0b8;color:#fff}
 
-  .site-header::after {
-    content: '';
-    display: block;
-    width: 120px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin: 1.25rem auto 0;
-  }
+/* ── CONTENT FILTERS ── */
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:1rem}
+.filter-chip{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);
+  padding:8px 12px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;gap:8px;
+}
+.filter-chip:hover{border-color:var(--border2);background:var(--surface)}
+.filter-chip.on{border-color:var(--red);background:rgba(192,57,43,.12)}
+.filter-chip-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .15s}
+.filter-chip.on .filter-chip-dot{background:var(--red)}
+.filter-label{font-size:13px;color:var(--text2)}
+.age-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:999px;font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:600;
+  border:1px solid var(--border2);background:var(--bg2);cursor:pointer;color:var(--text2);transition:all .15s;
+}
+.age-badge.selected{background:var(--green);border-color:#32c870;color:#fff}
 
-  .site-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(28px, 6vw, 44px);
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: var(--gold2);
-    text-shadow: 0 0 40px rgba(201,168,76,0.3);
-    line-height: 1.15;
-  }
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 24px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text);font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .18s}
+.btn:hover{background:var(--surface2);border-color:var(--purple2)}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);border-color:var(--gold2);color:#1a1200}
+.btn-gold:hover{background:var(--gold2)}
+.btn-purple{background:var(--purple);border-color:var(--purple2);color:#fff}
+.btn-purple:hover{background:var(--purple2)}
+.btn-danger{border-color:rgba(192,57,43,.4);color:#e07060}
+.btn-danger:hover{background:rgba(192,57,43,.15)}
+.btn-sm{padding:7px 14px;font-size:11px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:1rem}
 
-  .site-title span { color: var(--text); }
+/* ── COVER IMAGE ── */
+.cover-wrap{
+  width:100%;border-radius:var(--rlg);overflow:hidden;margin-bottom:1.25rem;
+  background:var(--bg2);border:1px solid var(--border);
+  min-height:200px;display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.cover-wrap img{width:100%;height:auto;display:block;border-radius:var(--rlg)}
+.cover-loading{color:var(--text3);font-style:italic;font-size:14px;padding:2rem;text-align:center}
+.cover-badge{
+  position:absolute;bottom:12px;left:12px;
+  background:rgba(12,11,16,.8);border:1px solid var(--border2);
+  border-radius:var(--r);padding:5px 12px;
+  font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;color:var(--gold);
+}
 
-  .site-sub {
-    font-style: italic;
-    color: var(--text2);
-    font-size: 15px;
-    margin-top: 0.4rem;
-    letter-spacing: 1px;
-  }
+/* ── NARRATIVE ── */
+.narrative{background:var(--bg2);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:1.25rem 1.5rem;font-style:italic;font-size:17px;line-height:1.8;color:var(--text);margin-bottom:1rem;white-space:pre-wrap;min-height:80px}
+.narrative.loading{color:var(--text3);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.question-box{background:rgba(124,92,191,.08);border:1px solid rgba(124,92,191,.22);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem;font-size:16px;color:var(--text)}
 
-  /* ── SCREENS ── */
-  .screen { display: none; }
-  .screen.active { display: block; animation: fadeIn 0.35s ease; }
+/* ── SCENE IMAGE ── */
+.scene-image-wrap{width:100%;border-radius:var(--r);overflow:hidden;margin-bottom:1rem;background:var(--bg2);border:1px solid var(--border);display:none}
+.scene-image-wrap img{width:100%;height:auto;display:block}
+.scene-image-wrap.show{display:block;animation:fadeUp .4s ease}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+/* ── TURN / PROGRESS ── */
+.turn-counter{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:1.5px;color:var(--text3);text-align:right;margin-bottom:.6rem}
+.progress-wrap{background:var(--bg2);border-radius:999px;height:3px;margin-bottom:1.5rem;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));border-radius:999px;transition:width .4s ease}
+.turn-badge{display:inline-flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border2);border-radius:999px;padding:6px 16px 6px 6px;margin-bottom:1rem}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:600;flex-shrink:0}
+.turn-label{font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text)}
 
-  /* ── CARDS ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    margin-bottom: 1.25rem;
-  }
+/* ── TOASTS ── */
+.reward-toast{display:none;align-items:center;gap:10px;background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:15px;color:#7be0a0;animation:fadeUp .3s ease}
+.reward-toast.show{display:flex}
+.mode-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;border:1px solid var(--border2);color:var(--text2);margin-bottom:1.25rem}
 
-  .card-title {
-    font-family: 'Cinzel', serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+/* ── INVENTORY ── */
+.inventory-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.player-inv{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+.player-inv-name{font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:600;color:var(--gold);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-tag{display:inline-block;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.22);border-radius:4px;padding:2px 7px;font-size:11px;color:var(--gold2);margin:2px 2px 0 0;line-height:1.5}
+.no-items{font-size:12px;color:var(--text3);font-style:italic}
 
-  .card-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+/* ── LOG ── */
+.log-scroll{max-height:170px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent}
+.log-entry{font-size:13px;color:var(--text3);padding:5px 0;border-bottom:1px solid var(--border);line-height:1.5}
+.log-entry:last-child{border-bottom:none}
+.log-entry.reward{color:#7be0a0}
 
-  /* ── FORM ELEMENTS ── */
-  label {
-    display: block;
-    font-size: 13px;
-    color: var(--text2);
-    margin-bottom: 5px;
-    letter-spacing: 0.3px;
-  }
+/* ── MAP ── */
+.map-wrap{width:100%;overflow:hidden;border-radius:var(--r);background:var(--bg2);min-height:220px;display:flex;align-items:center;justify-content:center}
 
-  input[type=text], textarea, select {
-    width: 100%;
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius);
-    padding: 10px 14px;
-    color: var(--text);
-    font-family: 'Crimson Text', serif;
-    font-size: 16px;
-    margin-bottom: 14px;
-    transition: border-color 0.2s;
-    outline: none;
-  }
+/* ── AUDIO ── */
+.audio-bar{display:none;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem}
+.audio-bar.show{display:flex}
 
-  input[type=text]:focus, textarea:focus, select:focus {
-    border-color: var(--purple);
-    box-shadow: 0 0 0 3px rgba(139,111,212,0.15);
-  }
+/* ── END ── */
+.end-title{font-family:'Cinzel',serif;font-size:clamp(20px,5vw,30px);font-weight:900;color:var(--gold2);text-align:center;letter-spacing:3px;margin-bottom:1.5rem}
+.final-player{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.final-player:last-child{border-bottom:none}
+.final-name{font-family:'Josefin Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
 
-  select option { background: var(--bg2); }
-  textarea { resize: vertical; min-height: 80px; }
-
-  .field { margin-bottom: 1rem; }
-
-  /* ── BUTTON GROUPS ── */
-  .pill-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
-  .pill {
-    padding: 6px 16px;
-    border-radius: 999px;
-    border: 1px solid var(--border2);
-    background: var(--bg2);
-    color: var(--text2);
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s;
-    user-select: none;
-  }
-
-  .pill:hover { border-color: var(--purple2); color: var(--text); }
-
-  .pill.selected {
-    background: var(--purple);
-    border-color: var(--purple2);
-    color: #fff;
-  }
-
-  /* ── BUTTONS ── */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 11px 24px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border2);
-    background: transparent;
-    color: var(--text);
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.8px;
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-
-  .btn:hover { background: var(--surface2); border-color: var(--purple2); }
-  .btn:active { transform: scale(0.97); }
-
-  .btn-gold {
-    background: var(--gold);
-    border-color: var(--gold2);
-    color: #1a1200;
-  }
-  .btn-gold:hover { background: var(--gold2); }
-
-  .btn-purple {
-    background: var(--purple);
-    border-color: var(--purple2);
-    color: #fff;
-  }
-  .btn-purple:hover { background: var(--purple2); }
-
-  .btn-danger {
-    border-color: rgba(192,57,43,0.4);
-    color: #e07060;
-  }
-  .btn-danger:hover { background: rgba(192,57,43,0.15); }
-
-  .btn-sm { padding: 7px 16px; font-size: 12px; }
-
-  .btn-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    margin-top: 1rem;
-  }
-
-  /* ── API KEY SETUP ── */
-  .apikey-notice {
-    background: rgba(139,111,212,0.08);
-    border: 1px solid rgba(139,111,212,0.25);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
-    font-size: 14px;
-    color: var(--text2);
-    line-height: 1.6;
-  }
-
-  .apikey-notice a { color: var(--purple2); }
-  .apikey-notice strong { color: var(--text); }
-
-  /* ── NARRATIVE BOX ── */
-  .narrative {
-    background: var(--bg2);
-    border-left: 3px solid var(--gold);
-    border-radius: 0 var(--radius) var(--radius) 0;
-    padding: 1.25rem 1.5rem;
-    font-style: italic;
-    font-size: 17px;
-    line-height: 1.8;
-    color: var(--text);
-    margin-bottom: 1rem;
-    white-space: pre-wrap;
-    min-height: 80px;
-  }
-
-  .narrative.loading { color: var(--text3); animation: pulse 1.5s ease-in-out infinite; }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-  }
-
-  /* ── QUESTION BOX ── */
-  .question-box {
-    background: rgba(139,111,212,0.08);
-    border: 1px solid rgba(139,111,212,0.2);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-    font-size: 16px;
-    color: var(--text);
-  }
-
-  /* ── ACTIVE PLAYER BADGE ── */
-  .turn-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 999px;
-    padding: 6px 16px 6px 6px;
-    margin-bottom: 1rem;
-  }
-
-  .avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: var(--purple);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .turn-label {
-    font-family: 'Cinzel', serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  /* ── REWARD TOAST ── */
-  .reward-toast {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    background: rgba(46,204,113,0.1);
-    border: 1px solid rgba(46,204,113,0.3);
-    border-radius: var(--radius);
-    padding: 10px 14px;
-    margin-bottom: 1rem;
-    font-size: 15px;
-    color: #7be0a0;
-    animation: slideIn 0.3s ease;
-  }
-
-  .reward-toast.show { display: flex; }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-
-  /* ── INVENTORY ── */
-  .inventory-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
-  }
-
-  .player-inv {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px;
-  }
-
-  .player-inv-name {
-    font-family: 'Cinzel', serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gold);
-    margin-bottom: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .item-tag {
-    display: inline-block;
-    background: rgba(201,168,76,0.12);
-    border: 1px solid rgba(201,168,76,0.25);
-    border-radius: 4px;
-    padding: 2px 7px;
-    font-size: 11px;
-    color: var(--gold2);
-    margin: 2px 2px 0 0;
-    line-height: 1.5;
-  }
-
-  .no-items { font-size: 12px; color: var(--text3); font-style: italic; }
-
-  /* ── TURN COUNTER ── */
-  .turn-counter {
-    font-family: 'Cinzel', serif;
-    font-size: 12px;
-    color: var(--text3);
-    text-align: right;
-    margin-bottom: 0.75rem;
-    letter-spacing: 1px;
-  }
-
-  /* ── PROGRESS BAR ── */
-  .progress-wrap {
-    background: var(--bg2);
-    border-radius: 999px;
-    height: 4px;
-    margin-bottom: 1.5rem;
-    overflow: hidden;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--purple), var(--gold));
-    border-radius: 999px;
-    transition: width 0.4s ease;
-  }
-
-  /* ── LOG ── */
-  .log-scroll {
-    max-height: 180px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--surface2) transparent;
-  }
-
-  .log-entry {
-    font-size: 13px;
-    color: var(--text3);
-    padding: 5px 0;
-    border-bottom: 1px solid var(--border);
-    line-height: 1.5;
-  }
-
-  .log-entry:last-child { border-bottom: none; }
-  .log-entry.reward { color: #7be0a0; }
-  .log-entry.dm { color: var(--text2); font-style: italic; }
-
-  /* ── END SCREEN ── */
-  .end-title {
-    font-family: 'Cinzel', serif;
-    font-size: 26px;
-    font-weight: 900;
-    color: var(--gold2);
-    text-align: center;
-    letter-spacing: 3px;
-    margin-bottom: 1.5rem;
-    text-shadow: 0 0 30px rgba(201,168,76,0.25);
-  }
-
-  .final-player {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .final-player:last-child { border-bottom: none; }
-
-  .final-name {
-    font-family: 'Cinzel', serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  /* ── ERROR ── */
-  .error { font-size: 13px; color: #e07060; margin-top: 6px; font-style: italic; }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 520px) {
-    .app { padding: 1rem 1rem 3rem; }
-    .btn-row { justify-content: stretch; }
-    .btn-row .btn { flex: 1; }
-  }
+/* ── MISC ── */
+.error{font-size:13px;color:#e07060;margin-top:6px;font-style:italic}
+.notice{background:rgba(124,92,191,.08);border:1px solid rgba(124,92,191,.2);border-radius:var(--r);padding:.9rem 1.1rem;font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:1.25rem}
+.notice a{color:var(--purple2)}
+.section-sep{height:1px;background:var(--border);margin:1.25rem 0}
+@media(max-width:520px){.app{padding:1rem 1rem 3rem}.activity-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="app">
 
-  <header class="site-header">
-    <div class="site-title">⚔ <span>Dungeon</span> Master <span>IA</span></div>
-    <div class="site-sub">Una aventura generada por inteligencia artificial</div>
-  </header>
+<header class="site-header">
+  <div class="site-logo">NARR<span>IA</span></div>
+  <div class="site-tagline">experiencias narrativas colaborativas con inteligencia artificial</div>
+</header>
 
-  <!-- ══════════════════════════════════════
-       SCREEN: SETUP
-  ══════════════════════════════════════ -->
-  <div class="screen active" id="screen-setup">
+<!-- ══════════════════════ SETUP ══════════════════════ -->
+<div class="screen active" id="screen-setup">
 
-    <div class="apikey-notice">
-      <strong>API Key de Anthropic requerida.</strong> Introduce tu clave para que el Dungeon Master IA funcione.
-      Obtenla gratis en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.
-      Tu clave solo se guarda en este navegador y nunca se envía a ningún servidor externo.
-    </div>
-
-    <div class="card">
-      <div class="card-title">Configuración</div>
-
-      <div class="field">
-        <label>API Key de Anthropic</label>
-        <input type="text" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
-      </div>
-      <div class="field">
-        <label>API Key de ElevenLabs <span style="color:var(--text3)">(opcional — para efectos de sonido ambiental)</span></label>
-        <input type="text" id="el-key" placeholder="sk_..." autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label>Número de jugadores</label>
-        <div class="pill-group" id="num-players-group">
-          <span class="pill" onclick="setNumPlayers(2,this)">2</span>
-          <span class="pill selected" onclick="setNumPlayers(3,this)">3</span>
-          <span class="pill" onclick="setNumPlayers(4,this)">4</span>
-          <span class="pill" onclick="setNumPlayers(5,this)">5</span>
-          <span class="pill" onclick="setNumPlayers(6,this)">6</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Nombres de los jugadores</label>
-        <div id="player-names-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">La Aventura</div>
-
-      <div class="field">
-        <label>Ambientación</label>
-        <select id="setting-select">
-          <option value="Fantasía medieval clásica con magia, dragones y reinos en guerra">Fantasía medieval clásica</option>
-          <option value="Ciencia ficción espacial con naves estelares, aliens e IA rebelde">Ciencia ficción espacial</option>
-          <option value="Horror gótico con vampiros, maldiciones ancestrales y castillos oscuros">Horror gótico</option>
-          <option value="Steampunk victoriano con engranajes, vapor e inventos imposibles">Steampunk victoriano</option>
-          <option value="Salvaje Oeste con vaqueros, duelos al amanecer y minas de oro malditas">Salvaje Oeste</option>
-          <option value="Mundo moderno donde la magia oculta existe en los márgenes de la sociedad">Mundo moderno con magia oculta</option>
-          <option value="custom">Personalizada...</option>
-        </select>
-        <textarea id="custom-setting" placeholder="Describe tu ambientación..." style="display:none;min-height:60px;" rows="2"></textarea>
-      </div>
-
-      <div class="field">
-        <label>Trama principal <span style="color:var(--text3)">(opcional — la IA la generará si la dejas vacía)</span></label>
-        <textarea id="plot-input" placeholder="Ej: Los héroes deben infiltrarse en la fortaleza del Señor Oscuro y destruir el Cristal de Sangre antes del eclipse..." rows="3"></textarea>
-      </div>
-
-      <div class="field">
-        <label>Duración de la aventura</label>
-        <div class="pill-group" id="duration-group">
-          <span class="pill selected" onclick="setDuration(5,this)">5 min</span>
-          <span class="pill" onclick="setDuration(10,this)">10 min</span>
-          <span class="pill" onclick="setDuration(20,this)">20 min</span>
-          <span class="pill" onclick="setDuration(30,this)">30 min</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-gold" onclick="startAdventure()">⚔ Comenzar aventura</button>
-    </div>
-    <div class="error" id="setup-error"></div>
+  <div class="notice">
+    Introduce tus claves de API para activar las funcionalidades. Solo se guardan en tu navegador.
+    Anthropic: <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> ·
+    OpenAI (imágenes): <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a> ·
+    ElevenLabs (sonido): <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN: INTRO
-  ══════════════════════════════════════ -->
-  <div class="screen" id="screen-intro">
-    <div class="card">
-      <div class="card-title">El Dungeon Master abre el libro...</div>
-      <div class="narrative loading" id="intro-narrative">Generando la introducción de tu aventura...</div>
-    </div>
-    <div class="card" id="map-card" style="display:none">
-      <div class="card-title">🗺 Mapa de la aventura</div>
-      <div id="map-container" style="width:100%;overflow:hidden;border-radius:8px;background:var(--bg2);min-height:220px;display:flex;align-items:center;justify-content:center;">
-        <span style="color:var(--text3);font-style:italic;font-size:14px">Generando el mapa...</span>
-      </div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-purple" id="begin-btn" onclick="beginPlay()" style="display:none">▶ Empezar a jugar</button>
+  <div class="card">
+    <div class="card-title">Claves de API</div>
+    <div class="field"><label>Anthropic (requerido)</label><input type="text" id="api-key" placeholder="sk-ant-api03-..."></div>
+    <div class="field"><label>OpenAI — imágenes DALL·E 3 <span style="color:var(--text3)">(opcional)</span></label><input type="text" id="oai-key" placeholder="sk-proj-..."></div>
+    <div class="field"><label>ElevenLabs — sonido ambiental <span style="color:var(--text3)">(opcional)</span></label><input type="text" id="el-key" placeholder="sk_..."></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Tipo de experiencia</div>
+    <div class="activity-grid" id="activity-grid"></div>
+    <div id="custom-activity-wrap" style="display:none">
+      <div class="field"><label>Describe tu experiencia personalizada</label><textarea id="custom-activity-desc" placeholder="Ej: Un concurso de cocina donde los participantes deben superar retos culinarios narrados por la IA..." rows="2"></textarea></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN: PLAY
-  ══════════════════════════════════════ -->
-  <div class="screen" id="screen-play">
+  <div class="card">
+    <div class="card-title">Jugadores</div>
+    <div class="field">
+      <label>Número de participantes</label>
+      <div class="pill-group" id="num-players-group">
+        <span class="pill" onclick="setNumPlayers(2,this)">2</span>
+        <span class="pill selected" onclick="setNumPlayers(3,this)">3</span>
+        <span class="pill" onclick="setNumPlayers(4,this)">4</span>
+        <span class="pill" onclick="setNumPlayers(5,this)">5</span>
+        <span class="pill" onclick="setNumPlayers(6,this)">6</span>
+      </div>
+    </div>
+    <div class="field"><label>Nombres de los participantes</label><div id="player-names-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Configuración de la historia</div>
+    <div class="field">
+      <label>Ambientación / Temática</label>
+      <input type="text" id="setting-input" placeholder="Ej: Venecia en el siglo XVIII, estación espacial abandonada, aldea medieval...">
+    </div>
+    <div class="field">
+      <label>Trama o premisa <span style="color:var(--text3)">(opcional)</span></label>
+      <textarea id="plot-input" placeholder="Ej: Un valioso cuadro ha desaparecido del museo y los visitantes son los únicos sospechosos..." rows="3"></textarea>
+    </div>
+    <div class="field">
+      <label>Duración estimada</label>
+      <div class="pill-group" id="duration-group">
+        <span class="pill selected" onclick="setDuration(5,this)">5 min</span>
+        <span class="pill" onclick="setDuration(10,this)">10 min</span>
+        <span class="pill" onclick="setDuration(20,this)">20 min</span>
+        <span class="pill" onclick="setDuration(30,this)">30 min</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Filtros de contenido</div>
+    <div class="field">
+      <label>Rango de edad</label>
+      <div class="pill-group" id="age-group">
+        <span class="pill selected" onclick="setAge('all',this)">Todos los públicos</span>
+        <span class="pill" onclick="setAge('teen',this)">+12</span>
+        <span class="pill" onclick="setAge('adult',this)">+18</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Contenido permitido <span style="color:var(--text3)">(activa para permitir, según edad seleccionada)</span></label>
+      <div class="filter-grid" id="filter-grid"></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-gold" onclick="startAdventure()">✦ Comenzar experiencia</button>
+  </div>
+  <div class="error" id="setup-error"></div>
+</div>
+
+<!-- ══════════════════════ INTRO ══════════════════════ -->
+<div class="screen" id="screen-intro">
+  <div id="cover-wrap" class="cover-wrap"><div class="cover-loading" id="cover-loading">Generando imagen de portada...</div></div>
+  <div class="card">
+    <div class="card-title" id="intro-mode-label">Introducción</div>
+    <div class="narrative loading" id="intro-narrative">Preparando tu experiencia...</div>
+  </div>
+  <div class="card" id="map-card" style="display:none">
+    <div class="card-title">Mapa</div>
+    <div class="map-wrap" id="map-container"><span style="color:var(--text3);font-style:italic;font-size:14px">Generando el mapa...</span></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-purple" id="begin-btn" onclick="beginPlay()" style="display:none">▶ Empezar</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ PLAY ══════════════════════ -->
+<div class="screen" id="screen-play">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+    <div class="mode-badge" id="play-mode-badge">⚔ Modo</div>
     <div class="turn-counter" id="turn-counter">Turno 1 / 5</div>
-    <div class="progress-wrap"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 
-    <!-- Audio player -->
-    <div id="audio-bar" style="display:none;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:1rem;">
-      <span style="font-size:13px;color:var(--text2)">🎵</span>
-      <audio id="ambient-audio" controls style="flex:1;height:28px;accent-color:var(--gold);"></audio>
-      <span id="audio-label" style="font-size:12px;color:var(--text3);font-style:italic;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-    </div>
-
-    <!-- Map toggle button -->
-    <div style="text-align:right;margin-bottom:0.75rem;">
-      <button class="btn btn-sm" id="map-toggle-btn" onclick="toggleMap()" style="display:none">🗺 Ver mapa</button>
-    </div>
-    <!-- Inline map (collapsible) -->
-    <div id="play-map-card" class="card" style="display:none;margin-bottom:1rem;">
-      <div class="card-title">🗺 Mapa de la aventura</div>
-      <div id="play-map-container" style="width:100%;overflow:hidden;border-radius:8px;"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Situación</div>
-      <div class="narrative loading" id="play-narrative">El Dungeon Master está pensando...</div>
-      <div class="question-box" id="play-question" style="display:none"></div>
-      <div class="reward-toast" id="reward-toast">✦ <span id="reward-text"></span></div>
-      <div class="turn-badge">
-        <div class="avatar" id="turn-avatar">?</div>
-        <span class="turn-label" id="turn-label">...</span>
-      </div>
-      <div class="field">
-        <label>Tu respuesta:</label>
-        <textarea id="player-response" placeholder="Describe qué hace tu personaje..."></textarea>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-danger btn-sm" onclick="endGame()">Terminar</button>
-        <button class="btn btn-gold" onclick="submitResponse()">Enviar respuesta →</button>
-      </div>
-      <div class="error" id="play-error"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Inventarios</div>
-      <div class="inventory-grid" id="inventory-grid"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Registro</div>
-      <div class="log-scroll" id="log-scroll"></div>
-    </div>
+  <div class="audio-bar" id="audio-bar">
+    <span style="font-size:13px;color:var(--text2)">♪</span>
+    <audio id="ambient-audio" controls style="flex:1;height:28px;accent-color:var(--gold)"></audio>
+    <span id="audio-label" style="font-size:12px;color:var(--text3);font-style:italic;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
   </div>
 
-  <!-- ══════════════════════════════════════
-       SCREEN: END
-  ══════════════════════════════════════ -->
-  <div class="screen" id="screen-end">
-    <div class="card">
-      <div class="end-title">⚔ Fin de la Aventura</div>
-      <div class="narrative" id="end-narrative"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Inventarios finales</div>
-      <div id="end-inventory"></div>
-    </div>
+  <div style="text-align:right;margin-bottom:.75rem">
+    <button class="btn btn-sm" id="map-toggle-btn" onclick="toggleMap()" style="display:none">🗺 Ver mapa</button>
+  </div>
+  <div class="card" id="play-map-card" style="display:none">
+    <div class="card-title">Mapa</div>
+    <div class="map-wrap" id="play-map-container"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Escena</div>
+    <div class="scene-image-wrap" id="scene-image-wrap"><img id="scene-image" src="" alt="Escena"></div>
+    <div class="narrative loading" id="play-narrative">Preparando la escena...</div>
+    <div class="question-box" id="play-question" style="display:none"></div>
+    <div class="reward-toast" id="reward-toast">✦ <span id="reward-text"></span></div>
+    <div class="turn-badge"><div class="avatar" id="turn-avatar">?</div><span class="turn-label" id="turn-label">...</span></div>
+    <div class="field"><label>Tu respuesta:</label><textarea id="player-response" placeholder="Describe qué hace o dice tu personaje..."></textarea></div>
     <div class="btn-row">
-      <button class="btn btn-gold" onclick="resetGame()">Nueva aventura</button>
+      <button class="btn btn-danger btn-sm" onclick="endGame()">Terminar</button>
+      <button class="btn btn-gold" onclick="submitResponse()">Enviar →</button>
     </div>
+    <div class="error" id="play-error"></div>
   </div>
+
+  <div class="card">
+    <div class="card-title">Inventario / Pistas</div>
+    <div class="inventory-grid" id="inventory-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Registro</div>
+    <div class="log-scroll" id="log-scroll"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ END ══════════════════════ -->
+<div class="screen" id="screen-end">
+  <div id="end-cover-wrap" class="cover-wrap" style="display:none"><img id="end-cover-img" src="" alt="Portada"></div>
+  <div class="card">
+    <div class="end-title" id="end-title">Fin</div>
+    <div class="narrative" id="end-narrative"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Objetos y pistas recogidos</div>
+    <div id="end-inventory"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-gold" onclick="resetGame()">Nueva experiencia</button>
+  </div>
+</div>
 
 </div><!-- /app -->
-
 <script>
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
+//  ACTIVITY MODES
+// ═══════════════════════════════════════════
+const ACTIVITIES = [
+  {
+    id: 'rol',
+    icon: '⚔️',
+    name: 'Partida de rol',
+    desc: 'Aventura estilo D&D con combates, objetos y decisiones',
+    itemLabel: 'objeto',
+    endTitle: '⚔ Fin de la aventura',
+    systemFn: (G) => `Eres un Dungeon Master creativo para ${G.players.length} jugadores: ${G.players.join(', ')}.
+Ambientación: ${G.setting}. Trama: ${G.plot || 'Una aventura épica llena de giros inesperados.'}.
+Duración: ~${G.totalTurns} turnos. ${contentRules(G)}
+MECÁNICAS: Cada turno describe una situación y dirige una pregunta al jugador activo. Evalúa su respuesta: si es creativa/valiente otorga UN objeto útil. En combates o eventos especiales, todos pueden recibir recompensas.
+${jsonSchema('objeto mágico o arma')}`,
+  },
+  {
+    id: 'teatro',
+    icon: '🎭',
+    name: 'Obra de teatro',
+    desc: 'La IA dirige una obra improvisada por actos',
+    itemLabel: 'accesorio',
+    endTitle: '🎭 Telón final',
+    systemFn: (G) => `Eres el director de una obra de teatro improvisada para ${G.players.length} actores: ${G.players.join(', ')}.
+Temática: ${G.setting}. Premisa: ${G.plot || 'Una historia dramática llena de giros y emociones.'}.
+La obra tiene ~${G.totalTurns} escenas. ${contentRules(G)}
+MECÁNICAS: Cada turno describe una escena, el contexto del personaje y pide al actor activo que improvise su parlamento o acción. Valora la actuación: si es expresiva y coherente con el personaje, entrega UN accesorio o elemento de atrezzo que puede usar después.
+${jsonSchema('accesorio de atrezzo')}`,
+  },
+  {
+    id: 'fiesta',
+    icon: '🎉',
+    name: 'Fiesta temática',
+    desc: 'Retos y dinámicas grupales con temática elegida',
+    itemLabel: 'punto / premio',
+    endTitle: '🎉 ¡La fiesta termina!',
+    systemFn: (G) => `Eres el animador de una fiesta temática para ${G.players.length} participantes: ${G.players.join(', ')}.
+Temática: ${G.setting}. Concepto: ${G.plot || 'Una velada llena de retos divertidos y sorpresas.'}.
+La fiesta tiene ~${G.totalTurns} rondas de actividades. ${contentRules(G)}
+MECÁNICAS: Cada turno propón un reto o dinámica divertida al participante activo (adivinanza temática, mímica, reto de actuación, trivia...). Si lo supera con gracia y creatividad, dale UN punto o premio especial. En momentos especiales, toda la fiesta puede ganar.
+${jsonSchema('punto o premio especial')}`,
+  },
+  {
+    id: 'murder',
+    icon: '🔍',
+    name: 'Murder mystery',
+    desc: 'Resuelve un crimen entre los participantes',
+    itemLabel: 'pista',
+    endTitle: '🔍 El caso se cierra',
+    systemFn: (G) => `Eres el narrador de un misterio de asesinato para ${G.players.length} investigadores: ${G.players.join(', ')}.
+Escenario: ${G.setting}. Caso: ${G.plot || 'Un misterioso crimen ocurrido en circunstancias inexplicables.'}.
+La investigación tiene ~${G.totalTurns} turnos. ${contentRules(G)}
+MECÁNICAS ESPECIALES: Al inicio, asigna mentalmente un culpable y distribuye pistas falsas y verdaderas. Cada turno, describe una nueva escena o testimonio y pregunta al investigador activo cómo actúa (interroga a alguien, examina una pista, busca un lugar). Si su acción es perspicaz, dale UNA pista relevante. Mantén el suspense hasta el final.
+${jsonSchema('pista o evidencia')}`,
+  },
+  {
+    id: 'escape',
+    icon: '🚪',
+    name: 'Escape room',
+    desc: 'Resuelve puzzles colaborativos para escapar',
+    itemLabel: 'herramienta',
+    endTitle: '🚪 ¡Escape completado!',
+    systemFn: (G) => `Eres el narrador de un escape room para ${G.players.length} jugadores: ${G.players.join(', ')}.
+Sala/Escenario: ${G.setting}. Premisa: ${G.plot || 'Los jugadores están atrapados y deben resolver puzzles para escapar.'}.
+El escape tiene ~${G.totalTurns} turnos. ${contentRules(G)}
+MECÁNICAS: Cada turno describe un puzzle o cerrojo y pregunta al jugador activo cómo intenta resolverlo. Si la solución es lógica y creativa, dale UNA herramienta o fragmento de código que les acerca a la salida. Lleva la cuenta implícita del progreso hacia la escapatoria.
+${jsonSchema('herramienta o fragmento de código')}`,
+  },
+  {
+    id: 'custom',
+    icon: '✨',
+    name: 'Personalizado',
+    desc: 'Define tú mismo el tipo de experiencia',
+    itemLabel: 'recompensa',
+    endTitle: '✨ Fin de la experiencia',
+    systemFn: (G) => `Eres el narrador de una experiencia colaborativa personalizada para ${G.players.length} participantes: ${G.players.join(', ')}.
+Tipo de experiencia: ${G.customActivity || 'experiencia narrativa colaborativa'}.
+Ambientación: ${G.setting}. Trama: ${G.plot || 'Una historia colaborativa llena de sorpresas.'}.
+Duración: ~${G.totalTurns} turnos. ${contentRules(G)}
+MECÁNICAS: Adapta el ritmo y los retos al tipo de experiencia descrita. Cada turno dirige una situación al participante activo y evalúa su respuesta. Otorga UNA recompensa temática si lo hace bien.
+${jsonSchema('recompensa temática')}`,
+  },
+];
+
+function contentRules(G) {
+  const age = G.age;
+  const f = G.filters;
+  let rules = [];
+  if (age === 'all') rules.push('Contenido apto para todos los públicos, sin violencia, lenguaje soez ni temas adultos.');
+  if (age === 'teen') rules.push('Contenido apto para mayores de 12. Puedes incluir tensión dramática moderada.');
+  if (age === 'adult') rules.push('Contenido para adultos.');
+  if (!f.violence) rules.push('Evita descripciones de violencia explícita.');
+  if (!f.romance)  rules.push('Evita contenido romántico o sexual.');
+  if (!f.horror)   rules.push('Evita elementos de terror o gore.');
+  if (!f.dark)     rules.push('Mantén un tono positivo, evita humor negro o temas oscuros.');
+  return rules.join(' ');
+}
+
+function jsonSchema(itemType) {
+  return `Responde SIEMPRE con este JSON exacto (sin texto fuera del JSON):
+{
+  "narration": "...",
+  "question": "...",
+  "reward_player": null,
+  "reward_item": null,
+  "reward_desc": null,
+  "special_event": false,
+  "is_final": false,
+  "image_prompt": "short vivid english description for image generation (max 20 words)"
+}
+reward_item debe ser un ${itemType} o null.`;
+}
+
+// ═══════════════════════════════════════════
+//  CONTENT FILTER DEFINITIONS
+// ═══════════════════════════════════════════
+const FILTERS_DEF = [
+  { id: 'violence', label: 'Violencia moderada', ages: ['teen','adult'] },
+  { id: 'romance',  label: 'Romance / flirteo',  ages: ['teen','adult'] },
+  { id: 'horror',   label: 'Terror / suspense',  ages: ['teen','adult'] },
+  { id: 'dark',     label: 'Humor negro',         ages: ['adult'] },
+];
+
+// ═══════════════════════════════════════════
 //  STATE
-// ─────────────────────────────────────
-const DURATION_TURNS = { 5: 5, 10: 8, 20: 14, 30: 20 };
+// ═══════════════════════════════════════════
+const DURATION_TURNS = { 5:5, 10:8, 20:14, 30:20 };
 
 let G = {
-  apiKey: '',
-  elKey: '',
-  players: [],
-  setting: '',
-  plot: '',
-  duration: 5,
-  totalTurns: 5,
-  turn: 1,
-  playerIdx: 0,
-  inventory: {},
-  context: [],
-  log: [],
-  mapSVG: '',
-  mapVisible: false,
+  apiKey:'', oaiKey:'', elKey:'',
+  activityId:'rol', customActivity:'',
+  players:[], setting:'', plot:'',
+  duration:5, totalTurns:5,
+  age:'all',
+  filters:{ violence:false, romance:false, horror:false, dark:false },
+  turn:1, playerIdx:0,
+  inventory:{}, context:[], log:[],
+  mapSVG:'', mapVisible:false,
+  coverUrl:'',
 };
 
-// ─────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────
-document.getElementById('setting-select').addEventListener('change', function () {
-  document.getElementById('custom-setting').style.display = this.value === 'custom' ? 'block' : 'none';
-});
+// ═══════════════════════════════════════════
+//  RENDER SETUP UI
+// ═══════════════════════════════════════════
+function renderActivities() {
+  const grid = document.getElementById('activity-grid');
+  grid.innerHTML = '';
+  ACTIVITIES.forEach(a => {
+    const d = document.createElement('div');
+    d.className = 'activity-card' + (a.id === G.activityId ? ' selected' : '');
+    d.innerHTML = `<div class="activity-icon">${a.icon}</div><div class="activity-name">${a.name}</div><div class="activity-desc">${a.desc}</div>`;
+    d.onclick = () => selectActivity(a.id);
+    grid.appendChild(d);
+  });
+}
+
+function selectActivity(id) {
+  G.activityId = id;
+  document.querySelectorAll('.activity-card').forEach((c,i) => {
+    c.classList.toggle('selected', ACTIVITIES[i].id === id);
+  });
+  document.getElementById('custom-activity-wrap').style.display = id === 'custom' ? 'block' : 'none';
+}
+
+function renderFilters() {
+  const grid = document.getElementById('filter-grid');
+  grid.innerHTML = '';
+  FILTERS_DEF.forEach(f => {
+    const chip = document.createElement('div');
+    const allowed = f.ages.includes(G.age);
+    chip.className = 'filter-chip' + (G.filters[f.id] && allowed ? ' on' : '');
+    chip.style.opacity = allowed ? '1' : '.35';
+    chip.style.pointerEvents = allowed ? 'auto' : 'none';
+    chip.innerHTML = `<div class="filter-chip-dot"></div><span class="filter-label">${f.label}</span>`;
+    chip.onclick = () => {
+      G.filters[f.id] = !G.filters[f.id];
+      chip.classList.toggle('on', G.filters[f.id]);
+    };
+    grid.appendChild(chip);
+  });
+}
+
+function setAge(age, el) {
+  G.age = age;
+  document.querySelectorAll('#age-group .pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  // Reset filters that are no longer allowed
+  if (age === 'all') { G.filters = { violence:false, romance:false, horror:false, dark:false }; }
+  if (age === 'teen') { G.filters.dark = false; }
+  renderFilters();
+}
 
 function setNumPlayers(n, el) {
-  G.players = [];
   document.querySelectorAll('#num-players-group .pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
   renderNameInputs(n);
@@ -704,500 +586,372 @@ function renderNameInputs(n) {
   grid.innerHTML = '';
   for (let i = 0; i < n; i++) {
     const inp = document.createElement('input');
-    inp.type = 'text';
-    inp.id = `pname-${i}`;
-    inp.placeholder = `Jugador ${i + 1}`;
-    inp.style.marginBottom = '0';
+    inp.type = 'text'; inp.id = `pname-${i}`; inp.placeholder = `Participante ${i+1}`; inp.style.marginBottom = '0';
     grid.appendChild(inp);
   }
 }
 
+// Init
+renderActivities();
+renderFilters();
 renderNameInputs(3);
 
-// ─────────────────────────────────────
-//  SCREENS
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
+//  SCREEN HELPERS
+// ═══════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
 
-// ─────────────────────────────────────
-//  AI CALL
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
+//  ANTHROPIC API
+// ═══════════════════════════════════════════
 async function callDM(systemPrompt, userMessage) {
-  G.context.push({ role: 'user', content: userMessage });
-
+  G.context.push({ role:'user', content:userMessage });
   const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': G.apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: G.context,
-    }),
+    method:'POST',
+    headers:{ 'Content-Type':'application/json','x-api-key':G.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:systemPrompt, messages:G.context }),
   });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `HTTP ${res.status}`);
-  }
-
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
   const data = await res.json();
-  const text = (data.content || []).map(b => b.text || '').join('');
-  G.context.push({ role: 'assistant', content: text });
+  const text = (data.content||[]).map(b=>b.text||'').join('');
+  G.context.push({ role:'assistant', content:text });
   if (G.context.length > 24) G.context = G.context.slice(-24);
   return text;
 }
 
-// ─────────────────────────────────────
-//  SYSTEM PROMPT
-// ─────────────────────────────────────
-function buildSystem() {
-  const playerList = G.players.join(', ');
-  return `Eres un Dungeon Master creativo, dramático y justo en un juego de rol de texto para ${G.players.length} jugadores: ${playerList}.
-
-Ambientación: ${G.setting}.
-Trama: ${G.plot || 'Los jugadores deben superar una aventura épica llena de desafíos y giros inesperados.'}.
-Duración: La aventura tiene aproximadamente ${G.totalTurns} turnos. Ajusta el ritmo en consecuencia.
-
-REGLAS:
-1. Narra en español, segunda persona plural al hablar al grupo.
-2. Cada turno, describe una situación y dirige una pregunta específica al jugador activo.
-3. Evalúa la respuesta: si es creativa/valiente/lógica, otorga UN objeto o bonificación. Si no, añade penalización narrativa leve.
-4. En combates o eventos especiales puedes dar recompensas a todos.
-5. Recuerda los inventarios; si un jugador tiene un objeto puede usarlo.
-6. En el último turno resuelve la aventura y da un epílogo.
-7. Responde SIEMPRE con este JSON exacto (sin texto fuera del JSON):
-{
-  "narration": "...",
-  "question": "...",
-  "reward_player": null,
-  "reward_item": null,
-  "reward_desc": null,
-  "special_event": false,
-  "is_final": false
-}`;
+async function callAnthropicOnce(prompt, maxTokens=200) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json','x-api-key':G.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:maxTokens, messages:[{ role:'user', content:prompt }] }),
+  });
+  const data = await res.json();
+  return (data.content||[]).map(b=>b.text||'').join('').trim();
 }
 
 function parseJSON(raw) {
+  try { const m = raw.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : null; } catch { return null; }
+}
+
+function getActivity() { return ACTIVITIES.find(a => a.id === G.activityId) || ACTIVITIES[0]; }
+
+// ═══════════════════════════════════════════
+//  IMAGE GENERATION (DALL·E 3)
+// ═══════════════════════════════════════════
+async function generateImage(prompt, style='cinematic fantasy illustration, dark atmospheric') {
+  if (!G.oaiKey) return null;
   try {
-    const m = raw.match(/\{[\s\S]*\}/);
-    return m ? JSON.parse(m[0]) : null;
+    const fullPrompt = `${style}: ${prompt}. No text or letters in image.`;
+    const res = await fetch('https://api.openai.com/v1/images/generations', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json','Authorization':`Bearer ${G.oaiKey}` },
+      body: JSON.stringify({ model:'dall-e-3', prompt:fullPrompt, n:1, size:'1024x576', quality:'standard' }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.data?.[0]?.url || null;
   } catch { return null; }
 }
 
-// ─────────────────────────────────────
+async function generateCoverImage() {
+  const coverWrap = document.getElementById('cover-wrap');
+  const coverLoading = document.getElementById('cover-loading');
+  if (!G.oaiKey) { coverWrap.style.display='none'; return; }
+
+  const activity = getActivity();
+  const prompt = `${activity.name} scene: ${G.setting}. ${G.plot || ''}`.slice(0,200);
+  const url = await generateImage(prompt, 'epic cinematic wide shot illustration, rich colors, dramatic lighting');
+  if (url) {
+    G.coverUrl = url;
+    coverLoading.style.display = 'none';
+    const img = document.createElement('img');
+    img.src = url; img.alt = 'Portada';
+    const badge = document.createElement('div');
+    badge.className = 'cover-badge'; badge.textContent = activity.icon + ' ' + activity.name;
+    coverWrap.innerHTML = ''; coverWrap.appendChild(img); coverWrap.appendChild(badge);
+    // Copy to end screen
+    const endCover = document.getElementById('end-cover-wrap');
+    document.getElementById('end-cover-img').src = url;
+    endCover.style.display = 'block';
+  } else {
+    coverWrap.style.display = 'none';
+  }
+}
+
+async function generateSceneImage(imagePrompt) {
+  if (!G.oaiKey || !imagePrompt) return;
+  const wrap = document.getElementById('scene-image-wrap');
+  const img  = document.getElementById('scene-image');
+  wrap.classList.remove('show');
+  const activity = getActivity();
+  const url = await generateImage(imagePrompt, `${activity.name} scene illustration, dark atmospheric`);
+  if (url) { img.src = url; wrap.classList.add('show'); }
+}
+
+// ═══════════════════════════════════════════
+//  MAP GENERATION
+// ═══════════════════════════════════════════
+async function generateMap() {
+  if (!['rol','murder','escape'].includes(G.activityId)) return;
+  const mapCard = document.getElementById('map-card');
+  mapCard.style.display = 'block';
+  const mapPrompt = `Genera un mapa SVG para la siguiente ambientación: "${G.setting}". Trama: "${G.plot||'aventura'}".
+INSTRUCCIONES: Devuelve SOLO el SVG, sin texto fuera. viewBox="0 0 500 320" width="100%" height="auto".
+Fondo oscuro (#1a1520). Incluye 5-8 lugares relevantes con símbolos simples y etiquetas serif en color claro (#e8e0f0 o #c9a84c).
+Añade caminos entre lugares. Estilo cartográfico antiguo. Sin gradientes complejos.`;
+  try {
+    const raw = await callAnthropicOnce(mapPrompt, 2000);
+    const svgMatch = raw.match(/<svg[\s\S]*<\/svg>/i);
+    if (svgMatch) {
+      G.mapSVG = svgMatch[0];
+      document.getElementById('map-container').innerHTML = G.mapSVG;
+      const playMap = document.getElementById('play-map-container');
+      if (playMap) playMap.innerHTML = G.mapSVG;
+    } else { mapCard.style.display = 'none'; }
+  } catch { mapCard.style.display = 'none'; }
+}
+
+function toggleMap() {
+  G.mapVisible = !G.mapVisible;
+  document.getElementById('play-map-card').style.display = G.mapVisible ? 'block' : 'none';
+  document.getElementById('map-toggle-btn').textContent = G.mapVisible ? '🗺 Ocultar mapa' : '🗺 Ver mapa';
+}
+
+// ═══════════════════════════════════════════
+//  AMBIENT SOUND (ElevenLabs)
+// ═══════════════════════════════════════════
+async function playAmbientSound(narration) {
+  if (!G.elKey) return;
+  try {
+    const soundPrompt = await callAnthropicOnce(
+      `De esta narración, extrae en 6-10 palabras en inglés el sonido ambiental para un generador de efectos. Solo la descripción: "${narration.slice(0,250)}"`, 60
+    );
+    document.getElementById('audio-label').textContent = soundPrompt;
+    const res = await fetch('https://api.elevenlabs.io/v1/sound-generation', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json','xi-api-key':G.elKey },
+      body: JSON.stringify({ text:soundPrompt, duration_seconds:8, prompt_influence:0.5 }),
+    });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const audio = document.getElementById('ambient-audio');
+    audio.src = URL.createObjectURL(blob);
+    audio.loop = true; audio.volume = 0.45;
+    audio.play().catch(()=>{});
+    document.getElementById('audio-bar').classList.add('show');
+  } catch {}
+}
+
+// ═══════════════════════════════════════════
 //  START ADVENTURE
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
 async function startAdventure() {
   document.getElementById('setup-error').textContent = '';
-  G.apiKey = document.getElementById('api-key').value.trim();
-  G.elKey  = document.getElementById('el-key').value.trim();
-  if (!G.apiKey) { showError('setup-error', 'Introduce tu API Key de Anthropic.'); return; }
+  G.apiKey  = document.getElementById('api-key').value.trim();
+  G.oaiKey  = document.getElementById('oai-key').value.trim();
+  G.elKey   = document.getElementById('el-key').value.trim();
+  if (!G.apiKey) { document.getElementById('setup-error').textContent = 'Introduce tu API Key de Anthropic.'; return; }
 
+  G.customActivity = document.getElementById('custom-activity-desc').value.trim();
   const numEl = document.querySelector('#num-players-group .pill.selected');
   const n = numEl ? parseInt(numEl.textContent) : 3;
   G.players = [];
-  for (let i = 0; i < n; i++) {
-    const v = (document.getElementById(`pname-${i}`)?.value || '').trim();
-    G.players.push(v || `Héroe ${i + 1}`);
+  for (let i=0;i<n;i++) {
+    const v = (document.getElementById(`pname-${i}`)?.value||'').trim();
+    G.players.push(v || `Participante ${i+1}`);
   }
-
-  const sel = document.getElementById('setting-select');
-  G.setting = sel.value === 'custom'
-    ? (document.getElementById('custom-setting').value.trim() || 'mundo de fantasía personalizado')
-    : sel.value;
-
-  G.plot = document.getElementById('plot-input').value.trim();
+  G.setting = document.getElementById('setting-input').value.trim() || 'mundo de fantasía';
+  G.plot    = document.getElementById('plot-input').value.trim();
   G.totalTurns = DURATION_TURNS[G.duration] || 5;
-  G.turn = 1; G.playerIdx = 0;
-  G.inventory = {}; G.players.forEach(p => G.inventory[p] = []);
-  G.context = []; G.log = []; G.mapSVG = ''; G.mapVisible = false;
+  G.turn=1; G.playerIdx=0;
+  G.inventory={}; G.players.forEach(p => G.inventory[p]=[]);
+  G.context=[]; G.log=[]; G.mapSVG=''; G.mapVisible=false; G.coverUrl='';
 
+  const activity = getActivity();
   showScreen('screen-intro');
+  document.getElementById('intro-mode-label').textContent = `${activity.icon} ${activity.name}`;
+  document.getElementById('play-mode-badge').textContent  = `${activity.icon} ${activity.name}`;
+  document.getElementById('end-title').textContent = activity.endTitle;
+
   const el = document.getElementById('intro-narrative');
-  el.textContent = 'Generando la introducción de tu aventura...';
-  el.classList.add('loading');
+  el.textContent = 'Preparando tu experiencia...'; el.classList.add('loading');
 
-  // Run intro + map generation in parallel
-  const introPromise = callDM(buildSystem(),
-    `Comienza la aventura con una introducción épica (3-4 oraciones) que establezca el escenario. ` +
-    `Luego plantea la primera situación al jugador: ${G.players[0]}. Solo JSON.`);
-  const mapPromise = generateMap();
+  // Fire everything in parallel
+  const [introRaw] = await Promise.allSettled([
+    callDM(activity.systemFn(G),
+      `Comienza la experiencia con una introducción vibrante (3-4 oraciones) que establezca el escenario y genere emoción. Luego plantea la primera situación al participante: ${G.players[0]}. Solo JSON.`),
+    generateCoverImage(),
+    generateMap(),
+  ]);
 
-  try {
-    const raw = await introPromise;
-    const p = parseJSON(raw);
-    el.classList.remove('loading');
+  el.classList.remove('loading');
+  if (introRaw.status === 'fulfilled') {
+    const p = parseJSON(introRaw.value);
     if (p) {
-      el.textContent = p.narration;
-      if (p.question) el.textContent += '\n\n' + p.question;
-      if (p.reward_item) applyReward(p.reward_player || G.players[0], p.reward_item, p.reward_desc);
-      // Trigger ambient sound for intro scene
-      if (G.elKey) playAmbientSound(p.narration);
-    } else {
-      el.textContent = raw;
-    }
-    document.getElementById('begin-btn').style.display = 'inline-flex';
-  } catch (e) {
-    el.classList.remove('loading');
-    el.textContent = 'Error al conectar con la IA: ' + e.message;
+      el.textContent = p.narration + (p.question ? '\n\n' + p.question : '');
+      if (p.reward_item) applyReward(p.reward_player||G.players[0], p.reward_item, p.reward_desc);
+      if (G.elKey && p.narration) playAmbientSound(p.narration);
+    } else { el.textContent = introRaw.value; }
+  } else {
+    el.textContent = 'Error: ' + introRaw.reason?.message;
   }
 
-  // Await map silently (non-blocking for play button)
-  mapPromise.catch(() => {});
+  document.getElementById('begin-btn').style.display = 'inline-flex';
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
 //  BEGIN PLAY
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
 function beginPlay() {
   showScreen('screen-play');
-  updateTurnUI();
-  renderInventory();
-  // Show map toggle button if map was generated
+  updateTurnUI(); renderInventory();
   if (G.mapSVG) {
     document.getElementById('map-toggle-btn').style.display = 'inline-flex';
-    const playMap = document.getElementById('play-map-container');
-    if (playMap) playMap.innerHTML = G.mapSVG;
+    document.getElementById('play-map-container').innerHTML = G.mapSVG;
   }
   loadSituation();
 }
 
 async function loadSituation() {
-  setNarrative('El Dungeon Master está preparando la siguiente escena...', true);
+  setNarrative('Preparando la siguiente escena...', true);
   hideQuestion();
   document.getElementById('play-error').textContent = '';
-
+  const activity = getActivity();
   const cp = G.players[G.playerIdx];
   const isFinal = G.turn >= G.totalTurns;
-  const inv = JSON.stringify(Object.fromEntries(Object.entries(G.inventory).filter(([,v]) => v.length)));
-
+  const inv = JSON.stringify(Object.fromEntries(Object.entries(G.inventory).filter(([,v])=>v.length)));
   try {
-    const raw = await callDM(buildSystem(),
-      `Turno ${G.turn}/${G.totalTurns}.${isFinal ? ' TURNO FINAL — is_final: true.' : ''}` +
-      ` Jugador activo: ${cp}.${inv !== '{}' ? ` Inventarios: ${inv}.` : ''}`);
+    const raw = await callDM(activity.systemFn(G),
+      `Turno ${G.turn}/${G.totalTurns}.${isFinal?' TURNO FINAL — is_final: true.':''} Participante activo: ${cp}.${inv!=='{}'?` Inventario: ${inv}.`:''}`);
     const p = parseJSON(raw);
     setNarrative(p ? p.narration : raw, false);
     if (p?.question) showQuestion(p.question);
-    if (p?.reward_item) applyReward(p.reward_player || cp, p.reward_item, p.reward_desc);
-    if (p?.special_event) flashReward('¡Evento especial! Todos reciben una bonificación.');
+    if (p?.reward_item) applyReward(p.reward_player||cp, p.reward_item, p.reward_desc);
+    if (p?.special_event) flashReward('¡Evento especial! Todos reciben una recompensa.');
+    if (p?.image_prompt) generateSceneImage(p.image_prompt);
     if (G.elKey && p?.narration) playAmbientSound(p.narration);
-    if (p?.is_final || isFinal) { setTimeout(() => finishGame(p?.narration), 1200); }
-  } catch (e) {
-    setNarrative('Error al generar la situación: ' + e.message, false);
-  }
+    if (p?.is_final || isFinal) { setTimeout(()=>finishGame(p?.narration), 1200); }
+  } catch(e) { setNarrative('Error: ' + e.message, false); }
 }
 
 async function submitResponse() {
   const resp = document.getElementById('player-response').value.trim();
-  if (!resp) { showError('play-error', 'Escribe la respuesta de tu personaje.'); return; }
+  if (!resp) { document.getElementById('play-error').textContent = 'Escribe tu respuesta.'; return; }
   document.getElementById('play-error').textContent = '';
-
+  const activity = getActivity();
   const cp = G.players[G.playerIdx];
-  addLog(`${cp}: "${resp}"`, '');
+  addLog(`${cp}: "${resp}"`);
   document.getElementById('player-response').value = '';
-
-  setNarrative('El Dungeon Master evalúa tu respuesta...', true);
+  setNarrative('Evaluando tu respuesta...', true);
   hideQuestion();
-
   const isFinal = G.turn >= G.totalTurns;
-  const nextPlayer = G.players[(G.playerIdx + 1) % G.players.length];
-
+  const next = G.players[(G.playerIdx+1) % G.players.length];
   try {
-    const raw = await callDM(buildSystem(),
-      `El jugador ${cp} responde: "${resp}". ` +
-      (isFinal
-        ? 'RESPUESTA FINAL. Escribe un epílogo épico. is_final: true.'
-        : `Evalúa, otorga recompensa si merece, y plantea la siguiente situación al jugador: ${nextPlayer}.`));
+    const raw = await callDM(activity.systemFn(G),
+      `${cp} responde: "${resp}". ` +
+      (isFinal ? 'RESPUESTA FINAL. Concluye con un epílogo memorable. is_final: true.'
+               : `Evalúa, otorga recompensa si merece, y plantea la siguiente situación a: ${next}.`));
     const p = parseJSON(raw);
     setNarrative(p ? p.narration : raw, false);
     if (p?.question) showQuestion(p.question);
     if (p?.reward_item) {
-      applyReward(p.reward_player || cp, p.reward_item, p.reward_desc);
-      flashReward(`${p.reward_player || cp} obtiene: ${p.reward_item}${p.reward_desc ? ' — ' + p.reward_desc : ''}`);
+      applyReward(p.reward_player||cp, p.reward_item, p.reward_desc);
+      flashReward(`${p.reward_player||cp} obtiene: ${p.reward_item}${p.reward_desc?' — '+p.reward_desc:''}`);
     }
-    if (p?.special_event) flashReward('¡Evento especial! Todos reciben una bonificación.');
+    if (p?.special_event) flashReward('¡Evento especial!');
+    if (p?.image_prompt) generateSceneImage(p.image_prompt);
     if (G.elKey && p?.narration) playAmbientSound(p.narration);
-    if (p?.is_final || isFinal) { setTimeout(() => finishGame(p?.narration), 1200); return; }
-  } catch (e) {
-    setNarrative('Error al procesar tu respuesta: ' + e.message, false);
-    return;
-  }
-
-  G.playerIdx = (G.playerIdx + 1) % G.players.length;
+    if (p?.is_final || isFinal) { setTimeout(()=>finishGame(p?.narration), 1200); return; }
+  } catch(e) { setNarrative('Error: ' + e.message, false); return; }
+  G.playerIdx = (G.playerIdx+1) % G.players.length;
   G.turn++;
-  updateTurnUI();
-  renderInventory();
+  updateTurnUI(); renderInventory();
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
 //  END GAME
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
 async function finishGame(finalNarr) {
   showScreen('screen-end');
   const el = document.getElementById('end-narrative');
-
   if (finalNarr) {
     el.textContent = finalNarr;
   } else {
-    el.textContent = 'Generando el epílogo...';
-    el.classList.add('loading');
+    el.textContent = 'Generando el epílogo...'; el.classList.add('loading');
     try {
-      const raw = await callDM(buildSystem(),
-        'La aventura ha terminado. Escribe un epílogo breve y memorable para todos los jugadores mencionando sus logros. JSON con is_final: true.');
+      const activity = getActivity();
+      const raw = await callDM(activity.systemFn(G), 'Escribe un epílogo breve y memorable. JSON con is_final: true.');
       const p = parseJSON(raw);
-      el.classList.remove('loading');
-      el.textContent = p ? p.narration : raw;
-    } catch {
-      el.classList.remove('loading');
-      el.textContent = 'La aventura ha llegado a su fin. ¡Hasta la próxima!';
-    }
+      el.classList.remove('loading'); el.textContent = p ? p.narration : raw;
+    } catch { el.classList.remove('loading'); el.textContent = 'La experiencia ha llegado a su fin.'; }
   }
-
   const inv = document.getElementById('end-inventory');
   inv.innerHTML = '';
   G.players.forEach(p => {
-    const items = G.inventory[p] || [];
-    const d = document.createElement('div');
-    d.className = 'final-player';
-    d.innerHTML = `
-      <div class="avatar">${p[0].toUpperCase()}</div>
-      <div>
-        <div class="final-name">${p}</div>
-        <div>${items.length ? items.map(i => `<span class="item-tag">${i}</span>`).join('') : '<span class="no-items">Sin objetos</span>'}</div>
-      </div>`;
+    const items = G.inventory[p]||[];
+    const d = document.createElement('div'); d.className = 'final-player';
+    d.innerHTML = `<div class="avatar">${p[0].toUpperCase()}</div><div><div class="final-name">${p}</div><div>${items.length?items.map(i=>`<span class="item-tag">${i}</span>`).join(''):'<span class="no-items">Sin objetos</span>'}</div></div>`;
     inv.appendChild(d);
   });
 }
 
-function endGame() {
-  if (confirm('¿Terminar la aventura ahora?')) finishGame();
-}
+function endGame() { if (confirm('¿Terminar la experiencia ahora?')) finishGame(); }
 
 function resetGame() {
-  G = { apiKey: G.apiKey, elKey: G.elKey, players: [], setting: '', plot: '', duration: 5, totalTurns: 5, turn: 1, playerIdx: 0, inventory: {}, context: [], log: [], mapSVG: '', mapVisible: false };
+  G = { ...G, players:[], setting:'', plot:'', duration:5, totalTurns:5, turn:1, playerIdx:0, inventory:{}, context:[], log:[], mapSVG:'', mapVisible:false, coverUrl:'' };
   document.getElementById('plot-input').value = '';
-  document.getElementById('custom-setting').value = '';
+  document.getElementById('setting-input').value = '';
   document.getElementById('log-scroll').innerHTML = '';
+  document.getElementById('audio-bar').classList.remove('show');
   document.getElementById('map-card').style.display = 'none';
-  document.getElementById('audio-bar').style.display = 'none';
   document.getElementById('map-toggle-btn').style.display = 'none';
   showScreen('screen-setup');
 }
 
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
 //  UI HELPERS
-// ─────────────────────────────────────
+// ═══════════════════════════════════════════
 function setNarrative(text, loading) {
   const el = document.getElementById('play-narrative');
-  el.textContent = text;
-  el.classList.toggle('loading', loading);
+  el.textContent = text; el.classList.toggle('loading', loading);
 }
-
-function showQuestion(q) {
-  const el = document.getElementById('play-question');
-  el.textContent = q;
-  el.style.display = 'block';
-}
-
-function hideQuestion() {
-  document.getElementById('play-question').style.display = 'none';
-}
-
+function showQuestion(q) { const el = document.getElementById('play-question'); el.textContent = q; el.style.display = 'block'; }
+function hideQuestion()  { document.getElementById('play-question').style.display = 'none'; }
 function updateTurnUI() {
   document.getElementById('turn-counter').textContent = `Turno ${G.turn} / ${G.totalTurns}`;
-  const pct = Math.round(((G.turn - 1) / G.totalTurns) * 100);
-  document.getElementById('progress-fill').style.width = pct + '%';
-  const cp = G.players[G.playerIdx] || '?';
+  document.getElementById('progress-fill').style.width = Math.round(((G.turn-1)/G.totalTurns)*100) + '%';
+  const cp = G.players[G.playerIdx]||'?';
   document.getElementById('turn-label').textContent = `Turno de ${cp}`;
   document.getElementById('turn-avatar').textContent = cp[0].toUpperCase();
 }
-
 function applyReward(player, item, desc) {
-  if (!G.inventory[player]) G.inventory[player] = [];
+  if (!G.inventory[player]) G.inventory[player]=[];
   G.inventory[player].push(item);
-  addLog(`[Recompensa] ${player}: ${item}${desc ? ' — ' + desc : ''}`, 'reward');
+  addLog(`[Recompensa] ${player}: ${item}${desc?' — '+desc:''}`);
   renderInventory();
 }
-
 function flashReward(msg) {
-  const toast = document.getElementById('reward-toast');
+  const t = document.getElementById('reward-toast');
   document.getElementById('reward-text').textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 4500);
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 4500);
 }
-
 function renderInventory() {
-  const grid = document.getElementById('inventory-grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById('inventory-grid'); grid.innerHTML = '';
   G.players.forEach(p => {
-    const items = G.inventory[p] || [];
-    const d = document.createElement('div');
-    d.className = 'player-inv';
-    d.innerHTML = `<div class="player-inv-name">${p}</div><div>${
-      items.length
-        ? items.map(i => `<span class="item-tag">${i}</span>`).join('')
-        : '<span class="no-items">Sin objetos</span>'
-    }</div>`;
+    const items = G.inventory[p]||[];
+    const d = document.createElement('div'); d.className = 'player-inv';
+    d.innerHTML = `<div class="player-inv-name">${p}</div><div>${items.length?items.map(i=>`<span class="item-tag">${i}</span>`).join(''):'<span class="no-items">—</span>'}</div>`;
     grid.appendChild(d);
   });
 }
-
-function addLog(text, cls) {
+function addLog(text) {
   const log = document.getElementById('log-scroll');
-  const d = document.createElement('div');
-  d.className = 'log-entry' + (cls ? ' ' + cls : '');
-  d.textContent = text;
-  log.appendChild(d);
-  log.scrollTop = log.scrollHeight;
-}
-
-function showError(id, msg) {
-  document.getElementById(id).textContent = msg;
-}
-
-// ─────────────────────────────────────
-//  MAP GENERATION (SVG via Claude)
-// ─────────────────────────────────────
-async function generateMap() {
-  const mapCard = document.getElementById('map-card');
-  const mapContainer = document.getElementById('map-container');
-  mapCard.style.display = 'block';
-  mapContainer.innerHTML = '<span style="color:var(--text3);font-style:italic;font-size:14px">Generando el mapa...</span>';
-
-  const mapPrompt = `Genera un mapa SVG de la aventura para la siguiente ambientación y trama.
-
-Ambientación: ${G.setting}
-Trama: ${G.plot || 'aventura épica'}
-
-INSTRUCCIONES ESTRICTAS:
-- Devuelve SOLO el código SVG, sin ningún texto antes ni después.
-- El SVG debe tener viewBox="0 0 500 320" y width="100%" height="auto".
-- Usa un fondo oscuro (#1a1520) con bordes y formas simples.
-- Incluye 5-8 lugares/puntos de interés relevantes para la trama (ej: ciudad de inicio, mazmorra, bosque, montaña, etc).
-- Cada lugar: un símbolo simple (círculo, rectángulo, polígono) en colores temáticos + etiqueta de texto.
-- Añade líneas o caminos entre lugares.
-- Usa fuentes serif para los nombres. Texto en color claro (#e8e0f0 o #c9a84c).
-- Estilo cartográfico antiguo, evocador. Sin gradientes complejos.
-- El SVG debe ser autónomo y renderizar bien en fondo oscuro.`;
-
-  try {
-    // Use a fresh one-shot call (no game context)
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': G.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        messages: [{ role: 'user', content: mapPrompt }],
-      }),
-    });
-    const data = await res.json();
-    const raw = (data.content || []).map(b => b.text || '').join('');
-    const svgMatch = raw.match(/<svg[\s\S]*<\/svg>/i);
-    if (svgMatch) {
-      G.mapSVG = svgMatch[0];
-      mapContainer.innerHTML = G.mapSVG;
-      // Inject map into play screen too
-      const playMap = document.getElementById('play-map-container');
-      if (playMap) playMap.innerHTML = G.mapSVG;
-      document.getElementById('map-toggle-btn').style.display = 'inline-flex';
-    } else {
-      mapCard.style.display = 'none';
-    }
-  } catch {
-    mapCard.style.display = 'none';
-  }
-}
-
-function toggleMap() {
-  const card = document.getElementById('play-map-card');
-  const btn = document.getElementById('map-toggle-btn');
-  G.mapVisible = !G.mapVisible;
-  card.style.display = G.mapVisible ? 'block' : 'none';
-  btn.textContent = G.mapVisible ? '🗺 Ocultar mapa' : '🗺 Ver mapa';
-}
-
-// ─────────────────────────────────────
-//  AMBIENT SOUND (ElevenLabs)
-// ─────────────────────────────────────
-async function playAmbientSound(narrationText) {
-  if (!G.elKey) return;
-  const audioBar = document.getElementById('audio-bar');
-  const audioEl  = document.getElementById('ambient-audio');
-  const audioLbl = document.getElementById('audio-label');
-
-  // Build a short sound prompt from the narration
-  const soundPrompt = await buildSoundPrompt(narrationText);
-  audioLbl.textContent = soundPrompt;
-  audioBar.style.display = 'flex';
-
-  try {
-    const res = await fetch('https://api.elevenlabs.io/v1/sound-generation', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'xi-api-key': G.elKey,
-      },
-      body: JSON.stringify({
-        text: soundPrompt,
-        duration_seconds: 8,
-        prompt_influence: 0.5,
-      }),
-    });
-
-    if (!res.ok) { audioBar.style.display = 'none'; return; }
-
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    audioEl.src = url;
-    audioEl.loop = true;
-    audioEl.volume = 0.5;
-    audioEl.play().catch(() => {});
-  } catch {
-    audioBar.style.display = 'none';
-  }
-}
-
-async function buildSoundPrompt(narration) {
-  // Ask Claude to extract a short ambient sound description
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': G.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 60,
-        messages: [{
-          role: 'user',
-          content: `A partir de esta narración de un juego de rol, describe en 5-10 palabras en inglés el sonido ambiental apropiado para la escena (para un generador de efectos de sonido). Solo devuelve la descripción del sonido, nada más. Narración: "${narration.slice(0, 300)}"`,
-        }],
-      }),
-    });
-    const data = await res.json();
-    return (data.content || []).map(b => b.text || '').join('').trim().slice(0, 100);
-  } catch {
-    return 'medieval tavern ambient sound atmosphere';
-  }
+  const d = document.createElement('div'); d.className = 'log-entry'; d.textContent = text;
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
 }
 </script>
 </body>
