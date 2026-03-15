@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NarrIA — Experiencias narrativas con IA</title>
+<title>IMAGINARIA — Experiencias narrativas con IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Josefin+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
@@ -201,13 +201,31 @@ textarea{resize:vertical;min-height:75px}
 .notice a{color:var(--purple2)}
 .section-sep{height:1px;background:var(--border);margin:1.25rem 0}
 @media(max-width:520px){.app{padding:1rem 1rem 3rem}.activity-grid{grid-template-columns:1fr 1fr}}
+
+/* ── MODAL DE CONFIRMACIÓN ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
+  z-index:1000;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.show{display:flex;animation:fadeUp .2s ease}
+.modal-box{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--rlg);padding:2rem 2rem 1.5rem;
+  max-width:360px;width:90%;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.modal-icon{font-size:36px;margin-bottom:.75rem}
+.modal-title{font-family:'Cinzel',serif;font-size:18px;color:var(--text);margin-bottom:.5rem}
+.modal-msg{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:1.5rem}
+.modal-btns{display:flex;gap:10px;justify-content:center}
 </style>
 </head>
 <body>
 <div class="app">
 
 <header class="site-header">
-  <div class="site-logo">NARR<span>IA</span></div>
+  <div class="site-logo">IMAGINAR<span>IA</span></div>
   <div class="site-tagline">experiencias narrativas colaborativas con inteligencia artificial</div>
 </header>
 
@@ -375,6 +393,19 @@ textarea{resize:vertical;min-height:75px}
 </div>
 
 </div><!-- /app -->
+
+<!-- ══════════════════════ MODAL CONFIRMAR FIN ══════════════════════ -->
+<div class="modal-overlay" id="end-modal" onclick="if(event.target===this)closeEndModal()">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">¿Terminar la experiencia?</div>
+    <div class="modal-msg">Se generará un epílogo y se cerrará la sesión actual. Esta acción no se puede deshacer.</div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeEndModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmEndGame()">Sí, terminar</button>
+    </div>
+  </div>
+</div>
 <script>
 // ═══════════════════════════════════════════
 //  ACTIVITY MODES
@@ -608,6 +639,9 @@ function showScreen(id) {
 // ═══════════════════════════════════════════
 //  ANTHROPIC API
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  ANTHROPIC API
+// ═══════════════════════════════════════════
 async function callDM(systemPrompt, userMessage) {
   G.context.push({ role:'user', content:userMessage });
   const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -623,7 +657,7 @@ async function callDM(systemPrompt, userMessage) {
   return text;
 }
 
-async function callAnthropicOnce(prompt, maxTokens=200) {
+async function callOnce(prompt, maxTokens=200) {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method:'POST',
     headers:{ 'Content-Type':'application/json','x-api-key':G.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
@@ -704,7 +738,7 @@ INSTRUCCIONES: Devuelve SOLO el SVG, sin texto fuera. viewBox="0 0 500 320" widt
 Fondo oscuro (#1a1520). Incluye 5-8 lugares relevantes con símbolos simples y etiquetas serif en color claro (#e8e0f0 o #c9a84c).
 Añade caminos entre lugares. Estilo cartográfico antiguo. Sin gradientes complejos.`;
   try {
-    const raw = await callAnthropicOnce(mapPrompt, 2000);
+    const raw = await callOnce(mapPrompt, 2000);
     const svgMatch = raw.match(/<svg[\s\S]*<\/svg>/i);
     if (svgMatch) {
       G.mapSVG = svgMatch[0];
@@ -727,7 +761,7 @@ function toggleMap() {
 async function playAmbientSound(narration) {
   if (!G.elKey) return;
   try {
-    const soundPrompt = await callAnthropicOnce(
+    const soundPrompt = await callOnce(
       `De esta narración, extrae en 6-10 palabras en inglés el sonido ambiental para un generador de efectos. Solo la descripción: "${narration.slice(0,250)}"`, 60
     );
     document.getElementById('audio-label').textContent = soundPrompt;
@@ -766,7 +800,10 @@ async function startAdventure() {
   }
   G.setting = document.getElementById('setting-input').value.trim() || 'mundo de fantasía';
   G.plot    = document.getElementById('plot-input').value.trim();
-  G.totalTurns = DURATION_TURNS[G.duration] || 5;
+  const baseTurns = DURATION_TURNS[G.duration] || 5;
+  // Redondear al múltiplo de jugadores más cercano (hacia arriba)
+  // para que todos los participantes completen el mismo número de rondas
+  G.totalTurns = Math.ceil(baseTurns / G.players.length) * G.players.length;
   G.turn=1; G.playerIdx=0;
   G.inventory={}; G.players.forEach(p => G.inventory[p]=[]);
   G.context=[]; G.log=[]; G.mapSVG=''; G.mapVisible=false; G.coverUrl='';
@@ -884,7 +921,7 @@ async function finishGame(finalNarr) {
     el.textContent = 'Generando el epílogo...'; el.classList.add('loading');
     try {
       const activity = getActivity();
-      const raw = await callDM(activity.systemFn(G), 'Escribe un epílogo breve y memorable. JSON con is_final: true.');
+      const raw = await callOnce('Escribe un epílogo breve y memorable. JSON con is_final: true.');
       const p = parseJSON(raw);
       el.classList.remove('loading'); el.textContent = p ? p.narration : raw;
     } catch { el.classList.remove('loading'); el.textContent = 'La experiencia ha llegado a su fin.'; }
@@ -899,7 +936,16 @@ async function finishGame(finalNarr) {
   });
 }
 
-function endGame() { if (confirm('¿Terminar la experiencia ahora?')) finishGame(); }
+function endGame() {
+  document.getElementById('end-modal').classList.add('show');
+}
+function closeEndModal() {
+  document.getElementById('end-modal').classList.remove('show');
+}
+function confirmEndGame() {
+  closeEndModal();
+  finishGame();
+}
 
 function resetGame() {
   G = { ...G, players:[], setting:'', plot:'', duration:5, totalTurns:5, turn:1, playerIdx:0, inventory:{}, context:[], log:[], mapSVG:'', mapVisible:false, coverUrl:'' };
@@ -922,7 +968,10 @@ function setNarrative(text, loading) {
 function showQuestion(q) { const el = document.getElementById('play-question'); el.textContent = q; el.style.display = 'block'; }
 function hideQuestion()  { document.getElementById('play-question').style.display = 'none'; }
 function updateTurnUI() {
-  document.getElementById('turn-counter').textContent = `Turno ${G.turn} / ${G.totalTurns}`;
+  const round      = Math.ceil(G.turn / G.players.length);
+  const totalRounds= Math.ceil(G.totalTurns / G.players.length);
+  document.getElementById('turn-counter').textContent =
+    `Ronda ${round} / ${totalRounds}  ·  Turno ${G.turn} / ${G.totalTurns}`;
   document.getElementById('progress-fill').style.width = Math.round(((G.turn-1)/G.totalTurns)*100) + '%';
   const cp = G.players[G.playerIdx]||'?';
   document.getElementById('turn-label').textContent = `Turno de ${cp}`;
