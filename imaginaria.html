@@ -202,6 +202,50 @@ textarea{resize:vertical;min-height:75px}
 .section-sep{height:1px;background:var(--border);margin:1.25rem 0}
 @media(max-width:520px){.app{padding:1rem 1rem 3rem}.activity-grid{grid-template-columns:1fr 1fr}}
 
+/* ── TOP NAV ── */
+.top-nav{display:flex;justify-content:center;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.8px;cursor:pointer;transition:all .18s}
+.nav-btn:hover{border-color:var(--purple2);color:var(--text);background:var(--surface2)}
+.nav-btn.active{border-color:var(--purple2);background:var(--purple);color:#fff}
+
+/* ── HISTORIAL ── */
+.session-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rlg);padding:1.2rem 1.25rem;margin-bottom:1rem;cursor:pointer;transition:border-color .18s}
+.session-card:hover{border-color:var(--purple2)}
+.session-card.expanded{border-color:var(--purple2);background:var(--surface)}
+.session-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.session-meta{flex:1;min-width:0}
+.session-title{font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.session-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.session-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.session-badge{font-family:'Josefin Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.5px;padding:3px 9px;border-radius:999px;border:1px solid var(--border2);color:var(--text3)}
+.session-body{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);display:none}
+.session-card.expanded .session-body{display:block}
+.session-epilogue{font-style:italic;font-size:15px;color:var(--text2);line-height:1.7;margin-bottom:.75rem;border-left:2px solid var(--gold);padding-left:.9rem}
+.session-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:.75rem}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3);font-style:italic;font-size:15px}
+.empty-state .empty-icon{font-size:40px;margin-bottom:.75rem}
+
+/* ── PERSONAJES ── */
+.char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:1rem}
+.char-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rlg);padding:1rem;display:flex;flex-direction:column;gap:8px;transition:border-color .18s;position:relative}
+.char-card:hover{border-color:var(--purple2)}
+.char-top{display:flex;align-items:center;gap:10px}
+.char-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--teal));color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Josefin Sans',sans-serif;font-size:15px;font-weight:700;flex-shrink:0}
+.char-name{font-family:'Josefin Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text)}
+.char-origin{font-size:11px;color:var(--text3);margin-top:1px}
+.char-desc{font-size:13px;color:var(--text2);line-height:1.5;flex:1}
+.char-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
+.char-tag{font-family:'Josefin Sans',sans-serif;font-size:10px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(124,92,191,.15);border:1px solid rgba(124,92,191,.3);color:var(--purple2)}
+.char-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px;border-radius:4px;transition:color .15s;line-height:1}
+.char-del:hover{color:#e07060}
+
+/* ── PERSONAJES EN SETUP ── */
+.saved-chars-hint{font-size:12px;color:var(--text3);font-style:italic;margin-bottom:8px}
+.saved-char-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;margin:3px}
+.saved-char-pill:hover{border-color:var(--teal);color:var(--text)}
+.saved-char-pill.used{background:var(--teal);border-color:#3dd0b8;color:#fff}
+.pill-avatar{width:18px;height:18px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+
 /* ── MODAL DE CONFIRMACIÓN ── */
 .modal-overlay{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);
@@ -229,19 +273,25 @@ textarea{resize:vertical;min-height:75px}
   <div class="site-tagline">experiencias narrativas colaborativas con inteligencia artificial</div>
 </header>
 
+<nav class="top-nav" id="top-nav">
+  <button class="nav-btn active" id="nav-setup" onclick="goSetup()">✦ Nueva experiencia</button>
+  <button class="nav-btn" id="nav-history" onclick="goHistory()">📜 Historial</button>
+  <button class="nav-btn" id="nav-chars" onclick="goChars()">🧙 Personajes</button>
+</nav>
+
 <!-- ══════════════════════ SETUP ══════════════════════ -->
 <div class="screen active" id="screen-setup">
 
   <div class="notice">
     Introduce tus claves de API para activar las funcionalidades. Solo se guardan en tu navegador.
-    Anthropic: <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> ·
+    Google Gemini: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> ·
     OpenAI (imágenes): <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a> ·
     ElevenLabs (sonido): <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a>
   </div>
 
   <div class="card">
     <div class="card-title">Claves de API</div>
-    <div class="field"><label>Anthropic (requerido)</label><input type="text" id="api-key" placeholder="sk-ant-api03-..."></div>
+    <div class="field"><label>Google Gemini (requerido)</label><input type="text" id="api-key" placeholder="AIzaSy..."></div>
     <div class="field"><label>OpenAI — imágenes DALL·E 3 <span style="color:var(--text3)">(opcional)</span></label><input type="text" id="oai-key" placeholder="sk-proj-..."></div>
     <div class="field"><label>ElevenLabs — sonido ambiental <span style="color:var(--text3)">(opcional)</span></label><input type="text" id="el-key" placeholder="sk_..."></div>
   </div>
@@ -267,6 +317,10 @@ textarea{resize:vertical;min-height:75px}
       </div>
     </div>
     <div class="field"><label>Nombres de los participantes</label><div id="player-names-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px"></div></div>
+    <div id="saved-chars-setup" style="display:none">
+      <div class="saved-chars-hint">Personajes guardados — pulsa uno para añadirlo al siguiente campo vacío:</div>
+      <div id="saved-chars-pills"></div>
+    </div>
   </div>
 
   <div class="card">
@@ -286,6 +340,20 @@ textarea{resize:vertical;min-height:75px}
         <span class="pill" onclick="setDuration(10,this)">10 min</span>
         <span class="pill" onclick="setDuration(20,this)">20 min</span>
         <span class="pill" onclick="setDuration(30,this)">30 min</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Imágenes iniciales a generar <span style="color:var(--text3)">(Requiere API de OpenAI)</span></label>
+      <div class="filter-grid">
+        <div class="filter-chip on" id="gen-cover-chip" onclick="toggleGenImage('cover')">
+          <div class="filter-chip-dot"></div><span class="filter-label">Portada de la historia</span>
+        </div>
+        <div class="filter-chip" id="gen-map-chip" onclick="toggleGenImage('map')">
+          <div class="filter-chip-dot"></div><span class="filter-label">Mapa del mundo</span>
+        </div>
+        <div class="filter-chip" id="gen-chars-chip" onclick="toggleGenImage('chars')">
+          <div class="filter-chip-dot"></div><span class="filter-label">Retrato del grupo</span>
+        </div>
       </div>
     </div>
   </div>
@@ -360,7 +428,7 @@ textarea{resize:vertical;min-height:75px}
     <div class="field"><label>Tu respuesta:</label><textarea id="player-response" placeholder="Describe qué hace o dice tu personaje..."></textarea></div>
     <div class="btn-row">
       <button class="btn btn-danger btn-sm" onclick="endGame()">Terminar</button>
-      <button class="btn btn-gold" onclick="submitResponse()">Enviar →</button>
+      <button class="btn btn-gold" id="send-btn" onclick="submitResponse()">Enviar →</button>
     </div>
     <div class="error" id="play-error"></div>
   </div>
@@ -387,8 +455,44 @@ textarea{resize:vertical;min-height:75px}
     <div class="card-title">Objetos y pistas recogidos</div>
     <div id="end-inventory"></div>
   </div>
+  <div class="card" id="end-save-card">
+    <div class="card-title">Guardar</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-purple" id="save-session-btn" onclick="saveSessionToHistory()">📜 Guardar en historial</button>
+      <button class="btn" id="extract-chars-btn" onclick="extractAndSaveCharacters()">🧙 Extraer personajes con IA</button>
+    </div>
+    <div style="font-size:13px;color:var(--text3);font-style:italic;margin-top:.6rem" id="save-status"></div>
+  </div>
   <div class="btn-row">
     <button class="btn btn-gold" onclick="resetGame()">Nueva experiencia</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ HISTORIAL ══════════════════════ -->
+<div class="screen" id="screen-history">
+  <div class="card">
+    <div class="card-title">Historial de experiencias</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PERSONAJES ══════════════════════ -->
+<div class="screen" id="screen-chars">
+  <div class="card">
+    <div class="card-title">Personajes guardados</div>
+    <div id="chars-list"></div>
+    <div class="btn-row" style="margin-top:.5rem">
+      <button class="btn btn-sm" onclick="showAddCharForm()">+ Añadir personaje</button>
+    </div>
+    <div id="add-char-form" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <div class="field"><label>Nombre</label><input type="text" id="new-char-name" placeholder="Nombre del personaje" style="margin-bottom:8px"></div>
+      <div class="field"><label>Descripción</label><textarea id="new-char-desc" placeholder="Clase, rol, rasgos, historia breve..." rows="2" style="margin-bottom:8px"></textarea></div>
+      <div class="field"><label>Etiqueta (tipo)</label><input type="text" id="new-char-tag" placeholder="Ej: Guerrero, Mago, Detective..." style="margin-bottom:8px"></div>
+      <div class="btn-row">
+        <button class="btn btn-sm" onclick="cancelAddChar()">Cancelar</button>
+        <button class="btn btn-sm btn-purple" onclick="addCharManually()">Guardar personaje</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -415,13 +519,14 @@ const ACTIVITIES = [
     id: 'rol',
     icon: '⚔️',
     name: 'Partida de rol',
-    desc: 'Aventura estilo D&D con combates, objetos y decisiones',
+    desc: 'Aventura narrativa profunda con decisiones y consecuencias',
     itemLabel: 'objeto',
     endTitle: '⚔ Fin de la aventura',
-    systemFn: (G) => `Eres un Dungeon Master creativo para ${G.players.length} jugadores: ${G.players.join(', ')}.
-Ambientación: ${G.setting}. Trama: ${G.plot || 'Una aventura épica llena de giros inesperados.'}.
+    systemFn: (G) => `Eres un Dungeon Master para ${G.players.length} jugadores: ${G.players.join(', ')}.
+Ambientación: ${G.setting}. Trama: ${G.plot || 'Una aventura épica.'}.
 Duración: ~${G.totalTurns} turnos. ${contentRules(G)}
-MECÁNICAS: Cada turno describe una situación y dirige una pregunta al jugador activo. Evalúa su respuesta: si es creativa/valiente otorga UN objeto útil. En combates o eventos especiales, todos pueden recibir recompensas.
+MECÁNICAS: Esta es una experiencia puramente narrativa. PROHIBIDO proponer minijuegos o retos físicos/verbales reales. Céntrate en describir el entorno, las consecuencias de las decisiones de los jugadores, la trama y los combates o diálogos imaginarios.
+Evalúa la respuesta del jugador activo. Otorga UN objeto mágico o arma ÚNICAMENTE si su idea es excepcionalmente creativa, brillante o si logra un "éxito crítico".
 ${jsonSchema('objeto mágico o arma')}`,
   },
   {
@@ -431,23 +536,23 @@ ${jsonSchema('objeto mágico o arma')}`,
     desc: 'La IA dirige una obra improvisada por actos',
     itemLabel: 'accesorio',
     endTitle: '🎭 Telón final',
-    systemFn: (G) => `Eres el director de una obra de teatro improvisada para ${G.players.length} actores: ${G.players.join(', ')}.
-Temática: ${G.setting}. Premisa: ${G.plot || 'Una historia dramática llena de giros y emociones.'}.
+    systemFn: (G) => `Eres el director de una obra improvisada para ${G.players.length} actores: ${G.players.join(', ')}.
+Temática: ${G.setting}. Premisa: ${G.plot || 'Una historia dramática.'}.
 La obra tiene ~${G.totalTurns} escenas. ${contentRules(G)}
-MECÁNICAS: Cada turno describe una escena, el contexto del personaje y pide al actor activo que improvise su parlamento o acción. Valora la actuación: si es expresiva y coherente con el personaje, entrega UN accesorio o elemento de atrezzo que puede usar después.
+MECÁNICAS: Valora la actuación. Si la improvisación es magistral y sorprende a todos (ocurre raramente), entrega UN accesorio de atrezzo especial. Si es una actuación normal, no des nada (reward_item: null).
 ${jsonSchema('accesorio de atrezzo')}`,
   },
-  {
+    {
     id: 'fiesta',
     icon: '🎉',
     name: 'Fiesta temática',
-    desc: 'Retos y dinámicas grupales con temática elegida',
+    desc: 'Retos interactivos y dinámicas de acción en el mundo real',
     itemLabel: 'punto / premio',
     endTitle: '🎉 ¡La fiesta termina!',
-    systemFn: (G) => `Eres el animador de una fiesta temática para ${G.players.length} participantes: ${G.players.join(', ')}.
-Temática: ${G.setting}. Concepto: ${G.plot || 'Una velada llena de retos divertidos y sorpresas.'}.
-La fiesta tiene ~${G.totalTurns} rondas de actividades. ${contentRules(G)}
-MECÁNICAS: Cada turno propón un reto o dinámica divertida al participante activo (adivinanza temática, mímica, reto de actuación, trivia...). Si lo supera con gracia y creatividad, dale UN punto o premio especial. En momentos especiales, toda la fiesta puede ganar.
+    systemFn: (G) => `Eres el animador de una fiesta para ${G.players.length} participantes: ${G.players.join(', ')}.
+Temática: ${G.setting}.
+MECÁNICAS: Esta es una experiencia interactiva. En cada turno, DEBES proponer un minijuego rápido o reto que requiera que el jugador haga algo en el mundo real. Ejemplos: resolver un acertijo, decir un trabalenguas, hacer mímica, buscar un objeto real en su habitación, inventar una rima, etc. 
+No desarrolles una historia profunda, mantén un tono de concurso televisivo ágil. Otorga UN punto o premio especial SOLO si la resolución del reto es ridículamente divertida o perfecta.
 ${jsonSchema('punto o premio especial')}`,
   },
   {
@@ -457,11 +562,10 @@ ${jsonSchema('punto o premio especial')}`,
     desc: 'Resuelve un crimen entre los participantes',
     itemLabel: 'pista',
     endTitle: '🔍 El caso se cierra',
-    systemFn: (G) => `Eres el narrador de un misterio de asesinato para ${G.players.length} investigadores: ${G.players.join(', ')}.
-Escenario: ${G.setting}. Caso: ${G.plot || 'Un misterioso crimen ocurrido en circunstancias inexplicables.'}.
-La investigación tiene ~${G.totalTurns} turnos. ${contentRules(G)}
-MECÁNICAS ESPECIALES: Al inicio, asigna mentalmente un culpable y distribuye pistas falsas y verdaderas. Cada turno, describe una nueva escena o testimonio y pregunta al investigador activo cómo actúa (interroga a alguien, examina una pista, busca un lugar). Si su acción es perspicaz, dale UNA pista relevante. Mantén el suspense hasta el final.
-${jsonSchema('pista o evidencia')}`,
+    systemFn: (G) => `Eres el narrador de un misterio para ${G.players.length} investigadores: ${G.players.join(', ')}. Uno de ellos podría ser el culpable.
+Escenario: ${G.setting}. Caso: ${G.plot || 'Un crimen inexplicable.'}.
+MECÁNICAS: Cada turno describe un testimonio o escena. Otorga UNA pista real ÚNICAMENTE si el jugador hace una deducción brillante o examina el lugar exacto correcto (aprox. 20% de las veces). Si la acción es obvia o genérica, no des pistas (reward_item: null).
+${jsonSchema('pista clave o evidencia')}`,
   },
   {
     id: 'escape',
@@ -471,10 +575,9 @@ ${jsonSchema('pista o evidencia')}`,
     itemLabel: 'herramienta',
     endTitle: '🚪 ¡Escape completado!',
     systemFn: (G) => `Eres el narrador de un escape room para ${G.players.length} jugadores: ${G.players.join(', ')}.
-Sala/Escenario: ${G.setting}. Premisa: ${G.plot || 'Los jugadores están atrapados y deben resolver puzzles para escapar.'}.
-El escape tiene ~${G.totalTurns} turnos. ${contentRules(G)}
-MECÁNICAS: Cada turno describe un puzzle o cerrojo y pregunta al jugador activo cómo intenta resolverlo. Si la solución es lógica y creativa, dale UNA herramienta o fragmento de código que les acerca a la salida. Lleva la cuenta implícita del progreso hacia la escapatoria.
-${jsonSchema('herramienta o fragmento de código')}`,
+Sala: ${G.setting}. 
+MECÁNICAS: Otorga una herramienta o código ÚNICAMENTE si el jugador descifra de manera lógica un puzzle complejo. Las respuestas fáciles no reciben recompensa.
+${jsonSchema('herramienta o código')}`,
   },
   {
     id: 'custom',
@@ -483,13 +586,11 @@ ${jsonSchema('herramienta o fragmento de código')}`,
     desc: 'Define tú mismo el tipo de experiencia',
     itemLabel: 'recompensa',
     endTitle: '✨ Fin de la experiencia',
-    systemFn: (G) => `Eres el narrador de una experiencia colaborativa personalizada para ${G.players.length} participantes: ${G.players.join(', ')}.
-Tipo de experiencia: ${G.customActivity || 'experiencia narrativa colaborativa'}.
-Ambientación: ${G.setting}. Trama: ${G.plot || 'Una historia colaborativa llena de sorpresas.'}.
-Duración: ~${G.totalTurns} turnos. ${contentRules(G)}
-MECÁNICAS: Adapta el ritmo y los retos al tipo de experiencia descrita. Cada turno dirige una situación al participante activo y evalúa su respuesta. Otorga UNA recompensa temática si lo hace bien.
+    systemFn: (G) => `Eres el narrador de una experiencia para ${G.players.length} participantes: ${G.players.join(', ')}.
+Tipo: ${G.customActivity}. Ambientación: ${G.setting}.
+MECÁNICAS: Evalúa su respuesta. Otorga UNA recompensa temática de forma MUY restrictiva, solo ante acciones verdaderamente excepcionales.
 ${jsonSchema('recompensa temática')}`,
-  },
+  }
 ];
 
 function contentRules(G) {
@@ -503,6 +604,10 @@ function contentRules(G) {
   if (!f.romance)  rules.push('Evita contenido romántico o sexual.');
   if (!f.horror)   rules.push('Evita elementos de terror o gore.');
   if (!f.dark)     rules.push('Mantén un tono positivo, evita humor negro o temas oscuros.');
+  
+  // NUEVA REGLA DE REALISMO E INVENTARIO
+  rules.push('REGLA ESTRICTA DE REALISMO: Los jugadores son personajes mundanos o acordes a su contexto inicial. Tienen prohibido inventarse estatus de poder (ej. ser el presidente o el rey) si no cuadra con la historia. Además, NO pueden usar objetos, armas o herramientas que no estén explícitamente en su Inventario. Si un jugador intenta hacer algo irreal o usar un objeto que no tiene, haz que su acción fracase narrativamente de forma lógica.');
+  
   return rules.join(' ');
 }
 
@@ -516,7 +621,7 @@ function jsonSchema(itemType) {
   "reward_desc": null,
   "special_event": false,
   "is_final": false,
-  "image_prompt": "short vivid english description for image generation (max 20 words)"
+  "image_prompt": "Crea SIEMPRE una descripción en inglés de máximo 20 palabras que resuma visualmente la acción principal que acaba de ocurrir en este turno para generar una imagen. OBLIGATORIO."
 }
 reward_item debe ser un ${itemType} o null.`;
 }
@@ -548,6 +653,13 @@ let G = {
   mapSVG:'', mapVisible:false,
   coverUrl:'',
 };
+
+G.genImages = { cover: true, map: false, chars: false };
+
+function toggleGenImage(type) {
+  G.genImages[type] = !G.genImages[type];
+  document.getElementById(`gen-${type}-chip`).classList.toggle('on', G.genImages[type]);
+}
 
 // ═══════════════════════════════════════════
 //  RENDER SETUP UI
@@ -612,13 +724,34 @@ function setDuration(d, el) {
   el.classList.add('selected');
 }
 
+// 1. Conservar los nombres si cambias el número de jugadores
 function renderNameInputs(n) {
   const grid = document.getElementById('player-names-grid');
+  
+  // Guardar lo que ya esté escrito para no borrarlo al añadir o quitar huecos
+  const existingNames = [];
+  if (grid) {
+    grid.querySelectorAll('input').forEach(inp => existingNames.push(inp.value));
+  }
+  
   grid.innerHTML = '';
   for (let i = 0; i < n; i++) {
     const inp = document.createElement('input');
-    inp.type = 'text'; inp.id = `pname-${i}`; inp.placeholder = `Participante ${i+1}`; inp.style.marginBottom = '0';
+    inp.type = 'text'; 
+    inp.id = `pname-${i}`; 
+    inp.placeholder = `Participante ${i+1}`; 
+    inp.style.marginBottom = '0';
+    
+    // Restaurar el nombre si existía
+    if (existingNames[i]) {
+      inp.value = existingNames[i];
+    }
     grid.appendChild(inp);
+  }
+  
+  // Refrescar las pastillas de personajes guardados
+  if (typeof renderSavedCharsPills === 'function') {
+    renderSavedCharsPills();
   }
 }
 
@@ -637,38 +770,85 @@ function showScreen(id) {
 }
 
 // ═══════════════════════════════════════════
-//  ANTHROPIC API
-// ═══════════════════════════════════════════
-// ═══════════════════════════════════════════
-//  ANTHROPIC API
+//  GEMINI API
 // ═══════════════════════════════════════════
 async function callDM(systemPrompt, userMessage) {
-  G.context.push({ role:'user', content:userMessage });
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json','x-api-key':G.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
-    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:systemPrompt, messages:G.context }),
+  // Gemini usa el formato 'user' y 'model', y la estructura 'parts: [{text: ...}]'
+  G.context.push({ role: 'user', parts: [{ text: userMessage }] });
+
+  const payload = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: G.context,
+    generationConfig: {
+      // Forzamos a que Gemini devuelva siempre un JSON estructurado
+      responseMimeType: "application/json", 
+    }
+  };
+
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${G.apiKey}`, {    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
-  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e?.error?.message||`HTTP ${res.status}`); }
+
   const data = await res.json();
-  const text = (data.content||[]).map(b=>b.text||'').join('');
-  G.context.push({ role:'assistant', content:text });
-  if (G.context.length > 24) G.context = G.context.slice(-24);
+  
+  if (!res.ok) { 
+    throw new Error(data.error?.message || `HTTP ${res.status}`); 
+  }
+
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  
+  // Guardamos la respuesta del modelo en el historial
+  G.context.push({ role: 'model', parts: [{ text: text }] });
+  
+  // Mantenemos el contexto en un límite manejable
+  // Al recortar, garantizamos que el primer mensaje siempre sea 'user'
+  // (Gemini rechaza con 400 si el historial empieza por 'model')
+  if (G.context.length > 24) {
+    G.context = G.context.slice(-24);
+    while (G.context.length && G.context[0].role !== 'user') G.context.shift();
+  }
+  
   return text;
 }
 
-async function callOnce(prompt, maxTokens=200) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{ 'Content-Type':'application/json','x-api-key':G.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
-    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:maxTokens, messages:[{ role:'user', content:prompt }] }),
+async function callOnce(prompt, maxTokens=200, forceJson=false) {
+  const payload = {
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      maxOutputTokens: maxTokens
+    }
+  };
+
+  // Solo forzamos JSON cuando se pide explícitamente, no por detección de palabras
+  // (evita que el prompt del mapa SVG active este modo por contener "JSON" como ejemplo)
+  if (forceJson) {
+    payload.generationConfig.responseMimeType = "application/json";
+  }
+
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${G.apiKey}`, {    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
+
   const data = await res.json();
-  return (data.content||[]).map(b=>b.text||'').join('').trim();
+  
+  if (!res.ok) { 
+    throw new Error(data.error?.message || `HTTP ${res.status}`); 
+  }
+
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 function parseJSON(raw) {
-  try { const m = raw.match(/\{[\s\S]*\}/); return m ? JSON.parse(m[0]) : null; } catch { return null; }
+  try {
+    // Intenta objeto JSON primero, luego array
+    const obj = raw.match(/\{[\s\S]*\}/);
+    if (obj) return JSON.parse(obj[0]);
+    const arr = raw.match(/\[[\s\S]*\]/);
+    if (arr) return JSON.parse(arr[0]);
+    return null;
+  } catch { return null; }
 }
 
 function getActivity() { return ACTIVITIES.find(a => a.id === G.activityId) || ACTIVITIES[0]; }
@@ -733,20 +913,33 @@ async function generateMap() {
   if (!['rol','murder','escape'].includes(G.activityId)) return;
   const mapCard = document.getElementById('map-card');
   mapCard.style.display = 'block';
-  const mapPrompt = `Genera un mapa SVG para la siguiente ambientación: "${G.setting}". Trama: "${G.plot||'aventura'}".
-INSTRUCCIONES: Devuelve SOLO el SVG, sin texto fuera. viewBox="0 0 500 320" width="100%" height="auto".
-Fondo oscuro (#1a1520). Incluye 5-8 lugares relevantes con símbolos simples y etiquetas serif en color claro (#e8e0f0 o #c9a84c).
-Añade caminos entre lugares. Estilo cartográfico antiguo. Sin gradientes complejos.`;
+  
+  const mapPrompt = `Actúa como un cartógrafo experto. Genera un mapa en código SVG puro para la siguiente ambientación: "${G.setting}". Trama: "${G.plot||'aventura'}".
+INSTRUCCIONES CRÍTICAS: 
+1. Devuelve ÚNICA Y EXCLUSIVAMENTE el código de la etiqueta <svg> hasta </svg>.
+2. NO incluyas markdown, ni comillas invertidas, ni explicaciones antes o después.
+3. El SVG debe tener: viewBox="0 0 500 320" width="100%" height="auto".
+4. Usa un fondo oscuro (ej: #1a1520).
+5. Dibuja 5-7 lugares clave con formas simples (círculos, cuadrados) y añade caminos conectándolos.
+6. Incluye etiquetas de texto (<text>) legibles y en color claro (#e8e0f0 o #c9a84c) para los nombres de los lugares.`;
+
   try {
     const raw = await callOnce(mapPrompt, 2000);
+    // Esta expresión regular extrae el SVG incluso si Gemini lo envuelve en markdown
     const svgMatch = raw.match(/<svg[\s\S]*<\/svg>/i);
+    
     if (svgMatch) {
       G.mapSVG = svgMatch[0];
       document.getElementById('map-container').innerHTML = G.mapSVG;
       const playMap = document.getElementById('play-map-container');
       if (playMap) playMap.innerHTML = G.mapSVG;
-    } else { mapCard.style.display = 'none'; }
-  } catch { mapCard.style.display = 'none'; }
+    } else { 
+      mapCard.style.display = 'none'; 
+    }
+  } catch (e) { 
+    console.error("Error al generar el mapa:", e);
+    mapCard.style.display = 'none'; 
+  }
 }
 
 function toggleMap() {
@@ -788,7 +981,7 @@ async function startAdventure() {
   G.apiKey  = document.getElementById('api-key').value.trim();
   G.oaiKey  = document.getElementById('oai-key').value.trim();
   G.elKey   = document.getElementById('el-key').value.trim();
-  if (!G.apiKey) { document.getElementById('setup-error').textContent = 'Introduce tu API Key de Anthropic.'; return; }
+  if (!G.apiKey) { document.getElementById('setup-error').textContent = 'Introduce tu API Key de Gemini.'; return; }
 
   G.customActivity = document.getElementById('custom-activity-desc').value.trim();
   const numEl = document.querySelector('#num-players-group .pill.selected');
@@ -817,15 +1010,49 @@ async function startAdventure() {
   const el = document.getElementById('intro-narrative');
   el.textContent = 'Preparando tu experiencia...'; el.classList.add('loading');
 
-  // Fire everything in parallel
-  const [introRaw] = await Promise.allSettled([
-    callDM(activity.systemFn(G),
-      `Comienza la experiencia con una introducción vibrante (3-4 oraciones) que establezca el escenario y genere emoción. Luego plantea la primera situación al participante: ${G.players[0]}. Solo JSON.`),
-    generateCoverImage(),
-    generateMap(),
-  ]);
+// Preparar el prompt para el equipo inicial
+  const equipPrompt = `Genera el equipo inicial para los siguientes personajes: ${G.players.join(', ')}. 
+  Ambientación: "${G.setting}".
+  Deben ser personajes coherentes con el entorno, sin estatus de poder absurdo.
+  Asigna a CADA jugador EXACTAMENTE 3 objetos: 
+  1. Un arma o herramienta defensiva básica.
+  2. Una posesión personal importante (afectiva o valiosa).
+  3. Un objeto misceláneo o de supervivencia.
+  
+  Responde ÚNICAMENTE con un JSON válido usando los nombres de los jugadores como claves y arrays de strings como valores. Ejemplo:
+  {"${G.players[0]}": ["Palo afilado", "Reloj roto de su abuelo", "Cuerda"]}`;
+
+  // Ejecutamos todo en paralelo para no añadir tiempo de carga
+  // Preparamos las promesas condicionales
+  const promises = [
+    callDM(activity.systemFn(G), `Comienza la experiencia con una introducción vibrante (3-4 oraciones) que establezca el escenario y genere emoción. Luego plantea la primera situación al participante: ${G.players[0]}. Solo JSON.`),
+    callOnce(equipPrompt, 500, true)
+  ];
+
+  if (G.genImages.cover) promises.push(generateCoverImage());
+  if (G.genImages.map) promises.push(generateMap());
+  if (G.genImages.chars) promises.push(generateSceneImage(`Epic portrait illustration of a group of adventurers: ${G.players.join(', ')}. Setting: ${G.setting}. Cinematic lighting, highly detailed`));
+
+  const results = await Promise.allSettled(promises);
+  
+  const introRaw = results[0];
+  const equipRaw = results[1];
 
   el.classList.remove('loading');
+  
+  // Asignar el equipo inicial si se generó correctamente
+  if (equipRaw.status === 'fulfilled') {
+    const equipParsed = parseJSON(equipRaw.value);
+    if (equipParsed) {
+      G.players.forEach(p => {
+        if (equipParsed[p] && Array.isArray(equipParsed[p])) {
+          G.inventory[p] = equipParsed[p];
+        }
+      });
+    }
+  }
+
+  // Cargar la introducción
   if (introRaw.status === 'fulfilled') {
     const p = parseJSON(introRaw.value);
     if (p) {
@@ -879,6 +1106,11 @@ async function submitResponse() {
   const resp = document.getElementById('player-response').value.trim();
   if (!resp) { document.getElementById('play-error').textContent = 'Escribe tu respuesta.'; return; }
   document.getElementById('play-error').textContent = '';
+
+  // Deshabilitamos el botón inmediatamente para evitar envíos duplicados
+  const sendBtn = document.getElementById('send-btn');
+  if (sendBtn) sendBtn.disabled = true;
+
   const activity = getActivity();
   const cp = G.players[G.playerIdx];
   addLog(`${cp}: "${resp}"`);
@@ -903,10 +1135,15 @@ async function submitResponse() {
     if (p?.image_prompt) generateSceneImage(p.image_prompt);
     if (G.elKey && p?.narration) playAmbientSound(p.narration);
     if (p?.is_final || isFinal) { setTimeout(()=>finishGame(p?.narration), 1200); return; }
-  } catch(e) { setNarrative('Error: ' + e.message, false); return; }
+  } catch(e) {
+    setNarrative('Error: ' + e.message, false);
+    if (sendBtn) sendBtn.disabled = false;
+    return;
+  }
   G.playerIdx = (G.playerIdx+1) % G.players.length;
   G.turn++;
   updateTurnUI(); renderInventory();
+  if (sendBtn) sendBtn.disabled = false;
 }
 
 // ═══════════════════════════════════════════
@@ -921,7 +1158,7 @@ async function finishGame(finalNarr) {
     el.textContent = 'Generando el epílogo...'; el.classList.add('loading');
     try {
       const activity = getActivity();
-      const raw = await callOnce('Escribe un epílogo breve y memorable. JSON con is_final: true.');
+      const raw = await callOnce('Escribe un epílogo breve y memorable. JSON con is_final: true.', 200, true);
       const p = parseJSON(raw);
       el.classList.remove('loading'); el.textContent = p ? p.narration : raw;
     } catch { el.classList.remove('loading'); el.textContent = 'La experiencia ha llegado a su fin.'; }
@@ -989,11 +1226,39 @@ function flashReward(msg) {
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 4500);
 }
 function renderInventory() {
-  const grid = document.getElementById('inventory-grid'); grid.innerHTML = '';
-  G.players.forEach(p => {
-    const items = G.inventory[p]||[];
-    const d = document.createElement('div'); d.className = 'player-inv';
-    d.innerHTML = `<div class="player-inv-name">${p}</div><div>${items.length?items.map(i=>`<span class="item-tag">${i}</span>`).join(''):'<span class="no-items">—</span>'}</div>`;
+  const grid = document.getElementById('inventory-grid'); 
+  grid.innerHTML = '';
+  
+  // Define en qué juegos los inventarios deben ser secretos
+  const modosSecretos = ['murder', 'escape']; 
+  const esModoSecreto = modosSecretos.includes(G.activityId);
+
+  G.players.forEach((p, index) => {
+    const items = G.inventory[p] || [];
+    const esTurnoActual = index === G.playerIdx;
+    
+    const d = document.createElement('div'); 
+    d.className = 'player-inv';
+    
+    // Resaltar visualmente el inventario del jugador actual
+    if (esTurnoActual) {
+      d.style.borderColor = 'var(--purple2)';
+      d.style.boxShadow = '0 0 10px rgba(124,92,191,0.15)';
+    }
+
+    let inventarioHTML = '<span class="no-items">—</span>';
+
+    if (esModoSecreto && !esTurnoActual) {
+      // Ocultar objetos si es modo secreto y no es su turno
+      if (items.length > 0) {
+        inventarioHTML = `<span class="no-items">🔒 Oculto (${items.length})</span>`;
+      }
+    } else if (items.length > 0) {
+      // Mostrar objetos normalmente
+      inventarioHTML = items.map(i => `<span class="item-tag">${i}</span>`).join('');
+    }
+
+    d.innerHTML = `<div class="player-inv-name">${p}</div><div>${inventarioHTML}</div>`;
     grid.appendChild(d);
   });
 }
@@ -1002,6 +1267,277 @@ function addLog(text) {
   const d = document.createElement('div'); d.className = 'log-entry'; d.textContent = text;
   log.appendChild(d); log.scrollTop = log.scrollHeight;
 }
+
+// ═══════════════════════════════════════════
+//  PERSISTENCIA — localStorage
+// ═══════════════════════════════════════════
+function loadSessions()   { try { return JSON.parse(localStorage.getItem('imaginaria_sessions')||'[]'); } catch { return []; } }
+function saveSessions(s)  { localStorage.setItem('imaginaria_sessions', JSON.stringify(s)); }
+function loadCharacters() { try { return JSON.parse(localStorage.getItem('imaginaria_chars')||'[]'); } catch { return []; } }
+function saveCharacters(c){ localStorage.setItem('imaginaria_chars', JSON.stringify(c)); }
+
+// ═══════════════════════════════════════════
+//  NAVEGACIÓN PRINCIPAL
+// ═══════════════════════════════════════════
+function setNavActive(id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goSetup() {
+  setNavActive('nav-setup');
+  showScreen('screen-setup');
+}
+function goHistory() {
+  setNavActive('nav-history');
+  renderHistory();
+  showScreen('screen-history');
+}
+function goChars() {
+  setNavActive('nav-chars');
+  renderCharsScreen();
+  showScreen('screen-chars');
+}
+
+// ═══════════════════════════════════════════
+//  GUARDAR SESIÓN
+// ═══════════════════════════════════════════
+function saveSessionToHistory() {
+  // Deshabilitamos el botón inmediatamente para evitar guardados duplicados
+  const btn = document.getElementById('save-session-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '✓ Guardado'; }
+
+  const epilogue = document.getElementById('end-narrative').textContent.trim();
+  const activity = getActivity();
+  const session = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' }),
+    activity: activity.name,
+    activityIcon: activity.icon,
+    setting: G.setting,
+    plot: G.plot,
+    players: [...G.players],
+    turns: G.turn - 1,
+    inventory: JSON.parse(JSON.stringify(G.inventory)),
+    epilogue,
+    log: [...G.log],
+  };
+  const sessions = loadSessions();
+  sessions.unshift(session);
+  if (sessions.length > 50) sessions.pop();
+  saveSessions(sessions);
+  // (botón ya deshabilitado al inicio de la función)
+  document.getElementById('save-status').textContent = 'Sesión guardada en el historial.';
+}
+
+// ═══════════════════════════════════════════
+//  EXTRAER PERSONAJES CON IA
+// ═══════════════════════════════════════════
+async function extractAndSaveCharacters() {
+  if (!G.apiKey) { document.getElementById('save-status').textContent = 'Necesitas la API Key para extraer personajes.'; return; }
+  const btn = document.getElementById('extract-chars-btn');
+  btn.disabled = true; btn.textContent = '⏳ Extrayendo...';
+  document.getElementById('save-status').textContent = '';
+  const epilogue  = document.getElementById('end-narrative').textContent.trim();
+  const logText   = G.log.slice(-30).join('\n');
+  const activity  = getActivity();
+  const prompt = `Analiza esta sesión de "${activity.name}" y extrae los personajes más relevantes (máximo 6).
+Sesión — Ambientación: ${G.setting}. Jugadores: ${G.players.join(', ')}.
+Registro: ${logText.slice(0,800)}
+Epílogo: ${epilogue.slice(0,400)}
+
+Devuelve SOLO un array JSON (sin texto fuera del JSON):
+[{"name":"...","desc":"Descripción del personaje, su rol y rasgos en 1-2 frases.","tag":"Tipo/Clase","origin":"${G.setting.slice(0,30)}"}]
+Incluye jugadores y NPCs relevantes con nombre. No incluyas personajes sin nombre.`;
+  try {
+    const raw = await callOnce(prompt, 800, true);
+    const match = raw.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('Sin personajes detectados');
+    const extracted = JSON.parse(match[0]);
+    const existing  = loadCharacters();
+    const existingNames = new Set(existing.map(c => c.name.toLowerCase()));
+    let added = 0;
+    extracted.forEach(c => {
+      if (c.name && !existingNames.has(c.name.toLowerCase())) {
+        existing.unshift({ id: Date.now() * 1000 + Math.floor(Math.random() * 1000), ...c });
+        added++;
+      }
+    });
+    saveCharacters(existing);
+    btn.textContent = `✓ ${added} personaje${added!==1?'s':''} guardado${added!==1?'s':''}`;
+    document.getElementById('save-status').textContent = added > 0
+      ? `${added} personaje${added!==1?'s':''} nuevo${added!==1?'s':''} guardado${added!==1?'s':''}. Accede a "Personajes" para verlos.`
+      : 'No se encontraron personajes nuevos (ya estaban guardados).';
+    renderSavedCharsPills();
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '🧙 Extraer personajes con IA';
+    document.getElementById('save-status').textContent = 'Error al extraer: ' + e.message;
+  }
+}
+
+// ═══════════════════════════════════════════
+//  RENDERIZAR HISTORIAL
+// ═══════════════════════════════════════════
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const sessions = loadSessions();
+  if (!sessions.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📜</div>Todavía no hay experiencias guardadas.<br>Termina una sesión y guárdala desde la pantalla final.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  sessions.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'session-card';
+    d.innerHTML = `
+      <div class="session-header">
+        <div class="session-meta">
+          <div class="session-title">${s.activityIcon} ${s.setting || 'Sin título'}</div>
+          <div class="session-sub">${s.date} · ${s.activity} · ${s.turns} turno${s.turns!==1?'s':''}</div>
+          <div class="session-badges">${s.players.map(p=>`<span class="session-badge">${p}</span>`).join('')}</div>
+        </div>
+        <span style="color:var(--text3);font-size:18px;margin-top:2px">›</span>
+      </div>
+      <div class="session-body">
+        ${s.epilogue ? `<div class="session-epilogue">${s.epilogue.slice(0,300)}${s.epilogue.length>300?'…':''}</div>` : ''}
+        ${Object.entries(s.inventory||{}).some(([,v])=>v.length) ? `
+          <div style="font-size:11px;color:var(--text3);font-family:'Josefin Sans',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Inventario final</div>
+          <div style="margin-bottom:.5rem">${Object.entries(s.inventory).map(([p,items])=>
+            items.length ? `<div style="font-size:13px;margin-bottom:3px"><span style="color:var(--gold);font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600">${p}:</span> <span style="color:var(--text2)">${items.join(', ')}</span></div>` : ''
+          ).join('')}</div>` : ''}
+        <div class="session-actions">
+          <button class="btn btn-sm" onclick="replaySession(${s.id},event)">↺ Repetir configuración</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteSession(${s.id},event)">🗑 Borrar</button>
+        </div>
+      </div>`;
+    d.querySelector('.session-header').onclick = () => d.classList.toggle('expanded');
+    list.appendChild(d);
+  });
+}
+
+function deleteSession(id, e) {
+  e.stopPropagation();
+  saveSessions(loadSessions().filter(s => s.id !== id));
+  renderHistory();
+}
+
+function replaySession(id, e) {
+  e && e.stopPropagation();
+  const s = loadSessions().find(s => s.id === id);
+  if (!s) return;
+  goSetup();
+  // Doble rAF garantiza que el DOM ha renderizado antes de manipularlo,
+  // más fiable que un setTimeout fijo especialmente en dispositivos lentos
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.getElementById('setting-input').value = s.setting || '';
+    document.getElementById('plot-input').value    = s.plot    || '';
+    ACTIVITIES.forEach(a => { if (a.name === s.activity) selectActivity(a.id); });
+    const n = s.players.length;
+    document.querySelectorAll('#num-players-group .pill').forEach(p => {
+      p.classList.toggle('selected', parseInt(p.textContent) === n);
+    });
+    renderNameInputs(n);
+    s.players.forEach((name, i) => { const inp = document.getElementById(`pname-${i}`); if (inp) inp.value = name; });
+  }));
+}
+
+// ═══════════════════════════════════════════
+//  RENDERIZAR PERSONAJES
+// ═══════════════════════════════════════════
+function renderCharsScreen() {
+  const list  = document.getElementById('chars-list');
+  const chars = loadCharacters();
+  if (!chars.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🧙</div>Todavía no hay personajes guardados.<br>Termina una sesión y usa "Extraer personajes con IA", o añade uno manualmente.</div>';
+    return;
+  }
+  list.innerHTML = '<div class="char-grid">' + chars.map(c => `
+    <div class="char-card">
+      <div class="char-top">
+        <div class="char-avatar">${c.name[0].toUpperCase()}</div>
+        <div><div class="char-name">${c.name}</div><div class="char-origin">${c.origin||''}</div></div>
+      </div>
+      <div class="char-desc">${c.desc||'—'}</div>
+      <div class="char-footer">
+        ${c.tag ? `<span class="char-tag">${c.tag}</span>` : '<span></span>'}
+        <button class="char-del" title="Eliminar" onclick="deleteChar('${String(c.id).replace(/'/g,"\\'")}')">✕</button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
+function deleteChar(id) {
+  saveCharacters(loadCharacters().filter(c => String(c.id) !== String(id)));
+  renderCharsScreen();
+  renderSavedCharsPills();
+}
+
+function showAddCharForm()  { document.getElementById('add-char-form').style.display = 'block'; }
+function cancelAddChar()    { document.getElementById('add-char-form').style.display = 'none'; }
+
+function addCharManually() {
+  const name = document.getElementById('new-char-name').value.trim();
+  if (!name) return;
+  const chars = loadCharacters();
+  chars.unshift({ id: Date.now(), name, desc: document.getElementById('new-char-desc').value.trim(), tag: document.getElementById('new-char-tag').value.trim(), origin: 'Añadido manualmente' });
+  saveCharacters(chars);
+  ['new-char-name','new-char-desc','new-char-tag'].forEach(id => document.getElementById(id).value = '');
+  cancelAddChar();
+  renderCharsScreen();
+  renderSavedCharsPills();
+}
+
+// ═══════════════════════════════════════════
+//  PERSONAJES GUARDADOS EN SETUP
+// ═══════════════════════════════════════════
+function renderSavedCharsPills() {
+  const chars = loadCharacters();
+  const wrap  = document.getElementById('saved-chars-setup');
+  const pills = document.getElementById('saved-chars-pills');
+  if (!chars.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  pills.innerHTML = chars.map(c => `
+    <span class="saved-char-pill" onclick="insertCharName('${c.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}',this)">
+      <span class="pill-avatar">${c.name[0].toUpperCase()}</span>${c.name}
+    </span>`).join('');
+}
+
+// 2. Insertar personaje y crear hueco nuevo automáticamente si hace falta
+function insertCharName(name, pill) {
+  const inputs = Array.from(document.querySelectorAll('#player-names-grid input'));
+  
+  // Busca el primer campo vacío
+  let targetInput = inputs.find(inp => !inp.value.trim()); 
+  
+  // Si no hay campos vacíos, intentamos añadir un jugador más (máximo 6)
+  if (!targetInput) {
+    if (inputs.length < 6) {
+      const newTotal = inputs.length + 1;
+      
+      // Mover el selector visual al nuevo número de jugadores
+      document.querySelectorAll('#num-players-group .pill').forEach(p => {
+        p.classList.toggle('selected', parseInt(p.textContent) === newTotal);
+      });
+      
+      // Crear los nuevos campos (se conservan los anteriores)
+      renderNameInputs(newTotal);
+      
+      // Seleccionar el nuevo campo que acabamos de crear
+      targetInput = document.getElementById(`pname-${newTotal - 1}`);
+    } else {
+      // Si ya hay 6 jugadores llenos, mostramos error visual
+      pill.style.borderColor = 'var(--red)';
+      setTimeout(() => pill.style.borderColor = '', 900);
+      return;
+    }
+  }
+  
+  // Insertar el nombre en el campo destino y dar feedback visual
+  targetInput.value = name;
+  pill.classList.add('used');
+  setTimeout(() => pill.classList.remove('used'), 1200);
+}
+
+// Init on load
+renderSavedCharsPills();
 </script>
 </body>
 </html>
