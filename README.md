@@ -103,8 +103,7 @@ En Firefox el botón aparece desactivado con un aviso informativo.
 | Función | Chrome | Edge | Firefox | Safari |
 |---|---|---|---|---|
 | App completa | ✅ | ✅ | ✅ | ✅ |
-| Reconocimiento de voz | ✅ | ✅ | ❌ | ⚠️ parcial |
-| HTTPS para voz | GitHub Pages / servidor con SSL | | | |
+| Reconocimiento de voz | ✅ | ✅ | ❌ | ⚠️ parcial | | | |
 
 ---
 
