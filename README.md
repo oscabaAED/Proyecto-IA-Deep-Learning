@@ -52,9 +52,12 @@ Todas las claves se introducen en la pantalla de configuración y se guardan ún
 ## Cómo jugar
 
 1. **Configura** el tipo de experiencia, número de jugadores, la ambientación y la premisa principal de la historia
+![Configuración inicial](https://github.com/oscabaAED/ImaginarIA/blob/main/images/inicio.png)
 2. **Introduce** los nombres de los participantes (o usa personajes guardados)
+![Opciones temáticas](https://github.com/oscabaAED/ImaginarIA/blob/main/images/opciones.png)
 3. **Ajusta** los filtros de contenido según el público al que vaya dirigido
 4. Pulsa **Comenzar experiencia** — la IA genera la intro y la portada
+![Portada e introducción](https://github.com/oscabaAED/ImaginarIA/blob/main/images/comienzo.png)
 5. Cada jugador por turnos describe qué hace su personaje (texto o voz 🎙)
 6. La IA narra las consecuencias y hace avanzar la historia
 7. Al terminar, se genera un epílogo y puedes guardar la sesión y los personajes creados
